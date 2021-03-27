@@ -2,65 +2,69 @@
   <div class="user-activity">
     <div class="post">
       <div class="user-block">
-        <img class="img-circle" :src="'https://wpimg.wallstcn.com/57ed425a-c71e-4201-9428-68760c0537c4.jpg'+avatarPrefix">
-        <span class="username text-muted">Iron Man</span>
-        <span class="description">Shared publicly - 7:30 PM today</span>
+        <img
+          class="img-circle"
+          :src="'https://wpimg.wallstcn.com/57ed425a-c71e-4201-9428-68760c0537c4.jpg'+avatarPrefix"
+        >
+        <span class="username text-muted">钢铁侠</span>
+        <span class="description">公开分享 - 7:30 PM today</span>
       </div>
       <p>
-        Lorem ipsum represents a long-held tradition for designers,
-        typographers and the like. Some people hate it and argue for
-        its demise, but others ignore the hate as they create awesome
-        tools to help create filler text for everyone from bacon lovers
-        to Charlie Sheen fans.
+        《钢铁侠》（Iron
+        Man）是由美国漫威电影工作室出品的一部科幻冒险电影，改编自同名系列漫画，由乔恩·费儒执导，小罗伯特·唐尼及格温妮斯·帕特洛、杰夫·布里吉斯等主演。该作也是“漫威电影宇宙”系列的首部电影。该片于2008年5月2日在美国上映，2008年4月30日在中国大陆上映。影片讲述了托尼·史塔克在一次绑架事件后改进了盔甲的功能，化身“钢铁侠”，以一个义务警察的身份保护了这个世界和平的故事。
       </p>
       <ul class="list-inline">
         <li>
           <span class="link-black text-sm">
             <i class="el-icon-share" />
-            Share
+            分享
           </span>
         </li>
         <li>
           <span class="link-black text-sm">
             <svg-icon icon-class="like" />
-            Like
+            ❤ 喜欢
           </span>
         </li>
       </ul>
     </div>
     <div class="post">
       <div class="user-block">
-        <img class="img-circle" :src="'https://wpimg.wallstcn.com/9e2a5d0a-bd5b-457f-ac8e-86554616c87b.jpg'+avatarPrefix">
-        <span class="username text-muted">Captain American</span>
-        <span class="description">Sent you a message - yesterday</span>
+        <img
+          class="img-circle"
+          :src="'https://wpimg.wallstcn.com/9e2a5d0a-bd5b-457f-ac8e-86554616c87b.jpg'+avatarPrefix"
+        >
+        <span class="username text-muted">美国队长</span>
+        <span class="description">已传送讯息给您 - yesterday</span>
       </div>
       <p>
-        Lorem ipsum represents a long-held tradition for designers,
-        typographers and the like. Some people hate it and argue for
-        its demise, but others ignore the hate as they create awesome
-        tools to help create filler text for everyone from bacon lovers
-        to Charlie Sheen fans.
+        美国队长（Captain America）是美国漫威漫画旗下超级英雄，初次登场于《美国队长》（Captain America
+        Comics）第1期（1941年3月），由乔·西蒙和杰克·科比联合创造，被视为美国精神的象征。本名史蒂夫·罗杰斯（Steve
+        Rogers），1918年7月4日出生于美国纽约布鲁克林区，原本是一名身体瘦弱的年轻人，在接受美国政府的改造后，成为各项体能都远超常人的“超级战士”，还被美国政府赋予了由世界上最坚硬的金属之一振金制成的盾牌，并在二战中率领侵袭者立下赫赫战功。
       </p>
       <ul class="list-inline">
         <li>
           <span class="link-black text-sm">
             <i class="el-icon-share" />
-            Share
+            分享
           </span>
         </li>
         <li>
           <span class="link-black text-sm">
             <svg-icon icon-class="like" />
-            Like
+            ❤ 喜欢
           </span>
         </li>
       </ul>
     </div>
     <div class="post">
       <div class="user-block">
-        <img class="img-circle" :src="'https://wpimg.wallstcn.com/fb57f689-e1ab-443c-af12-8d4066e202e2.jpg'+avatarPrefix">
-        <span class="username">Spider Man</span>
-        <span class="description">Posted 4 photos - 2 days ago</span>
+        <img
+          class="img-circle"
+          :src="'https://wpimg.wallstcn.com/fb57f689-e1ab-443c-af12-8d4066e202e2.jpg'+avatarPrefix"
+        >
+        <span class="username">蜘蛛侠</span>
+        <span class="description">发表了4张照片 - 2 days ago</span>
       </div>
       <div class="user-images">
         <el-carousel :interval="6000" type="card" height="220px">
@@ -70,10 +74,17 @@
         </el-carousel>
       </div>
       <ul class="list-inline">
-        <li><span class="link-black text-sm"><i class="el-icon-share" /> Share</span></li>
         <li>
           <span class="link-black text-sm">
-            <svg-icon icon-class="like" /> Like</span>
+            <i class="el-icon-share" />
+            分享
+          </span>
+        </li>
+        <li>
+          <span class="link-black text-sm">
+            <svg-icon icon-class="like" />
+            ❤ 喜欢
+          </span>
         </li>
       </ul>
     </div>
@@ -111,7 +122,7 @@ export default {
       padding: 2px 0;
     }
 
-    .username{
+    .username {
       font-size: 16px;
       color: #000;
     }

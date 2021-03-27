@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import echarts from 'echarts'
+import * as echarts from 'echarts'
 import resize from './mixins/resize'
 
 export default {
@@ -44,7 +44,6 @@ export default {
   methods: {
     initChart() {
       this.chart = echarts.init(document.getElementById(this.id))
-
       this.chart.setOption({
         backgroundColor: '#394056',
         title: {

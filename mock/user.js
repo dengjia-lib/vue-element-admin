@@ -1,10 +1,12 @@
-
 const tokens = {
   admin: {
     token: 'admin-token'
   },
   editor: {
     token: 'editor-token'
+  },
+  dj: {
+    token: ''
   }
 }
 
@@ -29,6 +31,7 @@ module.exports = [
     url: '/vue-element-admin/user/login',
     type: 'post',
     response: config => {
+      console.log('config' + config)
       const { username } = config.body
       const token = tokens[username]
 
@@ -36,7 +39,8 @@ module.exports = [
       if (!token) {
         return {
           code: 60204,
-          message: 'Account and password are incorrect.'
+          // message: 'Account and password are incorrect.'
+          message: '帐号或密码错误。'
         }
       }
 
@@ -59,7 +63,8 @@ module.exports = [
       if (!info) {
         return {
           code: 50008,
-          message: 'Login failed, unable to get user details.'
+          // message: 'Login failed, unable to get user details.'
+          message: '登录失败，无法获取用户详细信息。'
         }
       }
 

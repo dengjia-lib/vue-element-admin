@@ -12,26 +12,31 @@ const constantRoutes = [
       }
     ]
   },
+
   {
     path: '/login',
     component: 'views/login/index',
     hidden: true
   },
+
   {
     path: '/auth-redirect',
     component: 'views/login/auth-redirect',
     hidden: true
   },
+
   {
     path: '/404',
     component: 'views/error-page/404',
     hidden: true
   },
+
   {
     path: '/401',
     component: 'views/error-page/401',
     hidden: true
   },
+
   {
     path: '',
     component: 'layout/Layout',
@@ -41,10 +46,11 @@ const constantRoutes = [
         path: 'dashboard',
         component: 'views/dashboard/index',
         name: 'Dashboard',
-        meta: { title: 'Dashboard', icon: 'dashboard', affix: true }
+        meta: { title: '仪表盘', icon: 'dashboard', affix: true }
       }
     ]
   },
+
   {
     path: '/documentation',
     component: 'layout/Layout',
@@ -53,10 +59,11 @@ const constantRoutes = [
         path: 'index',
         component: 'views/documentation/index',
         name: 'Documentation',
-        meta: { title: 'Documentation', icon: 'documentation', affix: true }
+        meta: { title: '文档资料', icon: 'documentation', affix: true }
       }
     ]
   },
+
   {
     path: '/guide',
     component: 'layout/Layout',
@@ -66,22 +73,23 @@ const constantRoutes = [
         path: 'index',
         component: 'views/guide/index',
         name: 'Guide',
-        meta: { title: 'Guide', icon: 'guide', noCache: true }
+        meta: { title: '引导指南', icon: 'guide', noCache: true }
       }
     ]
   }
 ]
 
+// const asyncRoutes = []
 const asyncRoutes = [
+
   {
     path: '/permission',
     component: 'layout/Layout',
     redirect: '/permission/index',
     alwaysShow: true,
     meta: {
-      title: 'Permission',
+      title: '权限~',
       icon: 'lock',
-      roles: ['admin', 'editor']
     },
     children: [
       {
@@ -89,7 +97,7 @@ const asyncRoutes = [
         component: 'views/permission/page',
         name: 'PagePermission',
         meta: {
-          title: 'Page Permission',
+          title: '页面权限',
           roles: ['admin']
         }
       },
@@ -98,7 +106,7 @@ const asyncRoutes = [
         component: 'views/permission/directive',
         name: 'DirectivePermission',
         meta: {
-          title: 'Directive Permission'
+          title: '指令权限'
         }
       },
       {
@@ -106,7 +114,7 @@ const asyncRoutes = [
         component: 'views/permission/role',
         name: 'RolePermission',
         meta: {
-          title: 'Role Permission',
+          title: '角色权限',
           roles: ['admin']
         }
       }
@@ -121,7 +129,7 @@ const asyncRoutes = [
         path: 'index',
         component: 'views/icons/index',
         name: 'Icons',
-        meta: { title: 'Icons', icon: 'icon', noCache: true }
+        meta: { title: '图标~', icon: 'icon', noCache: true }
       }
     ]
   },
@@ -132,7 +140,7 @@ const asyncRoutes = [
     redirect: 'noRedirect',
     name: 'ComponentDemo',
     meta: {
-      title: 'Components',
+      title: '组件~',
       icon: 'component'
     },
     children: [
@@ -222,13 +230,14 @@ const asyncRoutes = [
       }
     ]
   },
+
   {
     path: '/charts',
     component: 'layout/Layout',
     redirect: 'noRedirect',
     name: 'Charts',
     meta: {
-      title: 'Charts',
+      title: '图表~',
       icon: 'chart'
     },
     children: [
@@ -252,13 +261,14 @@ const asyncRoutes = [
       }
     ]
   },
+
   {
     path: '/nested',
     component: 'layout/Layout',
     redirect: '/nested/menu1/menu1-1',
     name: 'Nested',
     meta: {
-      title: 'Nested',
+      title: '嵌套路由~',
       icon: 'nested'
     },
     children: [
@@ -319,7 +329,7 @@ const asyncRoutes = [
     redirect: '/example/list',
     name: 'Example',
     meta: {
-      title: 'Example',
+      title: '示例文章~',
       icon: 'example'
     },
     children: [
@@ -353,7 +363,7 @@ const asyncRoutes = [
         path: 'index',
         component: 'views/tab/index',
         name: 'Tab',
-        meta: { title: 'Tab', icon: 'tab' }
+        meta: { title: '标签~', icon: 'tab' }
       }
     ]
   },
@@ -364,7 +374,7 @@ const asyncRoutes = [
     redirect: 'noRedirect',
     name: 'ErrorPages',
     meta: {
-      title: 'Error Pages',
+      title: '错误页面~',
       icon: '404'
     },
     children: [
@@ -392,7 +402,7 @@ const asyncRoutes = [
         path: 'log',
         component: 'views/error-log/index',
         name: 'ErrorLog',
-        meta: { title: 'Error Log', icon: 'bug' }
+        meta: { title: '错误日志~', icon: 'bug' }
       }
     ]
   },
@@ -403,7 +413,7 @@ const asyncRoutes = [
     redirect: '/excel/export-excel',
     name: 'Excel',
     meta: {
-      title: 'Excel',
+      title: 'Excel~',
       icon: 'excel'
     },
     children: [
@@ -439,7 +449,7 @@ const asyncRoutes = [
     component: 'layout/Layout',
     redirect: '/zip/download',
     alwaysShow: true,
-    meta: { title: 'Zip', icon: 'zip' },
+    meta: { title: 'Zip~', icon: 'zip' },
     children: [
       {
         path: 'download',
@@ -459,10 +469,11 @@ const asyncRoutes = [
         path: 'index',
         component: 'views/pdf/index',
         name: 'PDF',
-        meta: { title: 'PDF', icon: 'pdf' }
+        meta: { title: 'PDF~', icon: 'pdf' }
       }
     ]
   },
+
   {
     path: '/pdf/download',
     component: 'views/pdf/download',
@@ -478,7 +489,7 @@ const asyncRoutes = [
         path: 'index',
         component: 'views/theme/index',
         name: 'Theme',
-        meta: { title: 'Theme', icon: 'theme' }
+        meta: { title: '主题~', icon: 'theme' }
       }
     ]
   },
@@ -492,7 +503,7 @@ const asyncRoutes = [
         path: 'index',
         component: 'views/clipboard/index',
         name: 'ClipboardDemo',
-        meta: { title: 'Clipboard Demo', icon: 'clipboard' }
+        meta: { title: '剪贴板~', icon: 'clipboard' }
       }
     ]
   },
@@ -505,7 +516,7 @@ const asyncRoutes = [
         path: 'index',
         component: 'views/i18n-demo/index',
         name: 'I18n',
-        meta: { title: 'I18n', icon: 'international' }
+        meta: { title: 'I18n（国际化）~', icon: 'international' }
       }
     ]
   },
@@ -516,7 +527,7 @@ const asyncRoutes = [
     children: [
       {
         path: 'https://github.com/PanJiaChen/vue-element-admin',
-        meta: { title: 'External Link', icon: 'link' }
+        meta: { title: '外部链接~', icon: 'link' }
       }
     ]
   },

@@ -18,6 +18,12 @@ const modules = modulesFiles.keys().reduce((modules, modulePath) => {
 }, {})
 
 const store = new Vuex.Store({
+  state: {
+    // 第一次请求默认就是第1页，取9条数据展示在第1页
+    currentPage: 1,
+    currentSize: 9,
+    pages: null
+  },
   modules,
   getters
 })

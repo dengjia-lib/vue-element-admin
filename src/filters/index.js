@@ -1,8 +1,8 @@
-// import parseTime, formatTime and set to filter
+// 导入parseTime，formatTime并设置为filter
 export { parseTime, formatTime } from '@/utils'
 
 /**
- * Show plural label if time is plural number
+ * 如果时间是复数，则显示复数标签
  * @param {number} time
  * @param {string} label
  * @return {string}
@@ -15,6 +15,7 @@ function pluralize(time, label) {
 }
 
 /**
+ * 时间格式
  * @param {number} time
  */
 export function timeAgo(time) {
@@ -29,7 +30,7 @@ export function timeAgo(time) {
 }
 
 /**
- * Number formatting
+ * 数字格式
  * like 10000 => 10k
  * @param {number} num
  * @param {number} digits
@@ -60,7 +61,8 @@ export function toThousandFilter(num) {
 }
 
 /**
- * Upper case first char
+ * 数字格式
+ * 大写第一个字符
  * @param {String} string
  */
 export function uppercaseFirst(string) {

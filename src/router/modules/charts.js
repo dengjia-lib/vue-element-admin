@@ -8,7 +8,7 @@ const chartsRouter = {
   redirect: 'noRedirect',
   name: 'Charts',
   meta: {
-    title: 'Charts',
+    title: '图表',
     icon: 'chart'
   },
   children: [
@@ -29,6 +29,18 @@ const chartsRouter = {
       component: () => import('@/views/charts/mix-chart'),
       name: 'MixChart',
       meta: { title: 'Mix Chart', noCache: true }
+    },
+    {
+      path: 'pie-chart',
+      component: () => import('@/views/charts/pie-chart'),
+      name: 'PieChart',
+      meta: { title: '饼形图', noCache: true, affix: true }
+    },
+    {
+      path: 'board-chart',
+      component: () => import('@/views/charts/board-chart'),
+      name: 'BoardChart',
+      meta: { title: '仪表图', noCache: true, affix: true }
     }
   ]
 }

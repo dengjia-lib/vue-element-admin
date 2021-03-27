@@ -2,9 +2,11 @@
   <div class="components-container">
     <aside>
       When the page is scrolled to the specified position, the Back to Top button appears in the lower right corner
+      （当页面滚动到指定位置时，“返回顶部”按钮将显示在右下角）
     </aside>
     <aside>
       You can customize the style of the button, show / hide, height of appearance, height of the return. If you need a text prompt, you can use element-ui el-tooltip elements externally
+      （您可以自定义按钮的样式，显示隐藏，外观高度，返回高度。如果需要文本提示，则可以在外部使用element-ui el-tooltip元素）
     </aside>
     <div class="placeholder-container">
       <div>placeholder</div>
@@ -118,7 +120,7 @@
       <div>placeholder</div>
     </div>
     <!-- you can add element-ui's tooltip -->
-    <el-tooltip placement="top" content="tooltip">
+    <el-tooltip placement="top" content="返回顶部">
       <back-to-top :custom-style="myBackToTopStyle" :visibility-height="300" :back-position="50" transition-name="fade" />
     </el-tooltip>
   </div>

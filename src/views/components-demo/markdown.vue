@@ -1,7 +1,7 @@
 <template>
   <div class="components-container">
-    <aside>Markdown is based on
-      <a href="https://github.com/nhnent/tui.editor" target="_blank">tui.editor</a> ，simply wrapped with Vue.
+    <aside>Markdown是基于
+      <a href="https://github.com/nhnent/tui.editor" target="_blank">tui.editor</a> ，只需用Vue包装即可。
       <a
         target="_blank"
         href="https://panjiachen.github.io/vue-element-admin-site/feature/component/markdown-editor.html"

@@ -8,7 +8,7 @@ const componentsRouter = {
   redirect: 'noRedirect',
   name: 'ComponentDemo',
   meta: {
-    title: 'Components',
+    title: '组件',
     icon: 'component'
   },
   children: [
@@ -16,7 +16,7 @@ const componentsRouter = {
       path: 'tinymce',
       component: () => import('@/views/components-demo/tinymce'),
       name: 'TinymceDemo',
-      meta: { title: 'Tinymce' }
+      meta: { title: 'TinyMCE' }
     },
     {
       path: 'markdown',
@@ -28,7 +28,7 @@ const componentsRouter = {
       path: 'json-editor',
       component: () => import('@/views/components-demo/json-editor'),
       name: 'JsonEditorDemo',
-      meta: { title: 'JSON Editor' }
+      meta: { title: 'JSON-Editor' }
     },
     {
       path: 'split-pane',
@@ -58,7 +58,7 @@ const componentsRouter = {
       path: 'count-to',
       component: () => import('@/views/components-demo/count-to'),
       name: 'CountToDemo',
-      meta: { title: 'Count To' }
+      meta: { title: 'Count To', affix: true }
     },
     {
       path: 'mixin',

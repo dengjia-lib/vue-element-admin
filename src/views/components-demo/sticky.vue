@@ -39,6 +39,7 @@
     <div class="components-container">
       <aside>
         Sticky header, When the page is scrolled to the preset position will be sticky on the top.
+        （粘页眉，当页面滚动到预设位置时，将在顶部粘页。）
       </aside>
       <div>placeholder</div>
       <div>placeholder</div>

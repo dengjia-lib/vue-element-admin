@@ -10,19 +10,21 @@
         <el-col :span="18" :xs="24">
           <el-card>
             <el-tabs v-model="activeTab">
-              <el-tab-pane label="Activity" name="activity">
+              <el-tab-pane label="活动" name="activity">
                 <activity />
               </el-tab-pane>
-              <el-tab-pane label="Timeline" name="timeline">
+              <el-tab-pane label="时间线" name="timeline">
                 <timeline />
               </el-tab-pane>
-              <el-tab-pane label="Account" name="account">
+              <el-tab-pane label="账户" name="account">
                 <account :user="user" />
+              </el-tab-pane>
+              <el-tab-pane label="更改密码" name="changepwd">
+                <account :pwd="pwd" />
               </el-tab-pane>
             </el-tabs>
           </el-card>
         </el-col>
-
       </el-row>
     </div>
   </div>
@@ -34,21 +36,27 @@ import UserCard from './components/UserCard'
 import Activity from './components/Activity'
 import Timeline from './components/Timeline'
 import Account from './components/Account'
+import ChangePwd from './components/ChangePwd'
 
 export default {
   name: 'Profile',
-  components: { UserCard, Activity, Timeline, Account },
+  components: { UserCard, Activity, Timeline, Account, ChangePwd },
   data() {
     return {
       user: {},
+      pwd: {},
       activeTab: 'activity'
     }
   },
   computed: {
     ...mapGetters([
-      'name',
+      'id',
       'avatar',
-      'roles'
+      'loginName',
+      'realName',
+      'introduction',
+      'roles',
+      'email'
     ])
   },
   created() {
@@ -57,10 +65,13 @@ export default {
   methods: {
     getUser() {
       this.user = {
-        name: this.name,
+        id: this.id,
+        avatar: this.avatar,
+        loginName: this.loginName,
+        realName: this.realName,
+        introduction: this.introduction,
         role: this.roles.join(' | '),
-        email: 'admin@test.com',
-        avatar: this.avatar
+        email: this.email
       }
     }
   }

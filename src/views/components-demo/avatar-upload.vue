@@ -1,14 +1,14 @@
 <template>
   <div class="components-container">
-    <aside>This is based on
+    <aside>这是基于
       <a class="link-type" href="//github.com/dai-siki/vue-image-crop-upload"> vue-image-crop-upload</a>.
-      Since I was using only the vue@1 version, and it is not compatible with mockjs at the moment, I modified it myself, and if you are going to use it, it is better to use official version.
+      由于我仅使用vue @ 1版本，并且目前不兼容mockjs，因此我自己进行了修改，如果要使用它，最好使用正式版本。
     </aside>
 
     <pan-thumb :image="image" />
 
     <el-button type="primary" icon="el-icon-upload" style="position: absolute;bottom: 15px;margin-left: 40px;" @click="imagecropperShow=true">
-      Change Avatar
+      更改头像
     </el-button>
 
     <image-cropper

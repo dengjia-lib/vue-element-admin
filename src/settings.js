@@ -1,35 +1,36 @@
 module.exports = {
-  title: 'Vue Element Admin',
+  title: 'EMS',
 
   /**
    * @type {boolean} true | false
-   * @description Whether show the settings right-panel
+   * @description 是否在右面板显示 设置
    */
-  showSettings: true,
+  showSettings: false,
 
   /**
    * @type {boolean} true | false
-   * @description Whether need tagsView
+   * @description 是否需要 tagsView
    */
   tagsView: true,
 
   /**
    * @type {boolean} true | false
-   * @description Whether fix the header
+   * @description 是否固定标签
    */
-  fixedHeader: false,
+  fixedHeader: true,
 
   /**
    * @type {boolean} true | false
-   * @description Whether show the logo in sidebar
+   * @description 是否在边栏中显示logo
    */
-  sidebarLogo: false,
+  sidebarLogo: true,
 
   /**
    * @type {string | array} 'production' | ['production', 'development']
-   * @description Need show err logs component.
-   * The default is only used in the production env
-   * If you want to also use it in dev, you can pass ['production', 'development']
+   * @description 需要显示错误日志的组件。
+   * 默认仅在生产环境中使用
+   * 如果您还想在开发环境中使用它，则可以设置['production','development']
    */
   errorLog: 'production'
+  // errorLog: ['production', 'development']
 }

@@ -13,30 +13,30 @@ import tableRouter from './modules/table'
 import nestedRouter from './modules/nested'
 
 /**
- * Note: sub-menu only appear when route children.length >= 1
+ * 注意：子菜单仅在路由 children.length> = 1 时出现
  * Detail see: https://panjiachen.github.io/vue-element-admin-site/guide/essentials/router-and-nav.html
  *
- * hidden: true                   if set true, item will not show in the sidebar(default is false)
- * alwaysShow: true               if set true, will always show the root menu
- *                                if not set alwaysShow, when item has more than one children route,
- *                                it will becomes nested mode, otherwise not show the root menu
- * redirect: noRedirect           if set noRedirect will no redirect in the breadcrumb
- * name:'router-name'             the name is used by <keep-alive> (must set!!!)
+ * hidden: true                   如果设置为true，则项目不会显示在边栏中（默认为false）
+ *                                是否需要展示该路由是否渲染该路由入口
+ * alwaysShow: true               如果设置为true，将始终显示根菜单。
+ *                                如果未设置为true，则当项具有多个子路线时，它将变为嵌套模式，否则不显示根菜单。
+ * redirect: noRedirect           如果设置noRedirect，则不会在面包屑中重定向。
+ *                                在父子嵌套结构中，父级的redirect指向子级children里的path
+ * name:'router-name'             该名称由<keep-alive>使用（必须设置！！！）
  * meta : {
-    roles: ['admin','editor']    control the page roles (you can set multiple roles)
-    title: 'title'               the name show in sidebar and breadcrumb (recommend set)
-    icon: 'svg-name'/'el-icon-x' the icon show in the sidebar
-    noCache: true                if set true, the page will no be cached(default is false)
-    affix: true                  if set true, the tag will affix in the tags-view
-    breadcrumb: false            if set false, the item will hidden in breadcrumb(default is true)
-    activeMenu: '/example/list'  if set path, the sidebar will highlight the path you set
+    roles: ['admin','editor']     控制页面角色（您可以设置多个角色）
+    title: 'title'                名称显示在侧边栏 和 面包屑中（推荐设置）
+    icon: 'svg-name'/'el-icon-x'  侧栏中的图标显示
+    noCache: true                 如果设置为true，将不缓存页面（默认为false）
+    affix: true                   如果设置为true，则标签将粘贴在标签视图（面包屑）中
+    breadcrumb: false             如果设置为false，则该项目将隐藏在面包屑中（默认为true）
+    activeMenu: '/example/list'   如果设置了路径，则侧边栏将突出显示您设置的路径
   }
  */
 
 /**
- * constantRoutes
- * a base page that does not have permission requirements
- * all roles can be accessed
+ * 恒定路由
+ * 没有权限要求的基本页面，所有角色都可以访问
  */
 export const constantRoutes = [
   {
@@ -79,7 +79,11 @@ export const constantRoutes = [
         path: 'dashboard',
         component: () => import('@/views/dashboard/index'),
         name: 'Dashboard',
-        meta: { title: 'Dashboard', icon: 'dashboard', affix: true }
+        meta: {
+          title: '仪表盘',
+          icon: 'dashboard',
+          affix: true
+        }
       }
     ]
   },
@@ -91,7 +95,7 @@ export const constantRoutes = [
         path: 'index',
         component: () => import('@/views/documentation/index'),
         name: 'Documentation',
-        meta: { title: 'Documentation', icon: 'documentation', affix: true }
+        meta: { title: '文档资料', icon: 'documentation' }
       }
     ]
   },
@@ -104,7 +108,7 @@ export const constantRoutes = [
         path: 'index',
         component: () => import('@/views/guide/index'),
         name: 'Guide',
-        meta: { title: 'Guide', icon: 'guide', noCache: true }
+        meta: { title: '引导指南', icon: 'guide', noCache: true }
       }
     ]
   },
@@ -118,27 +122,28 @@ export const constantRoutes = [
         path: 'index',
         component: () => import('@/views/profile/index'),
         name: 'Profile',
-        meta: { title: 'Profile', icon: 'user', noCache: true }
+        meta: { title: '个人资料', icon: 'user', noCache: true }
       }
     ]
   }
 ]
 
 /**
- * asyncRoutes
- * the routes that need to be dynamically loaded based on user roles
+ * 异步路由
+ * 需要根据用户角色【动态加载】的路由
  */
 export const asyncRoutes = [
   {
     path: '/permission',
     component: Layout,
     redirect: '/permission/page',
-    alwaysShow: true, // will always show the root menu
+    // 将始终显示根菜单
+    alwaysShow: true,
     name: 'Permission',
     meta: {
-      title: 'Permission',
-      icon: 'lock',
-      roles: ['admin', 'editor'] // you can set roles in root nav
+      title: '权限',
+      icon: 'lock'
+      // roles: ['ADMIN', 'SUPERADMIN'] // 您可以在根导航中设置角色
     },
     children: [
       {
@@ -146,8 +151,8 @@ export const asyncRoutes = [
         component: () => import('@/views/permission/page'),
         name: 'PagePermission',
         meta: {
-          title: 'Page Permission',
-          roles: ['admin'] // or you can only set roles in sub nav
+          title: '页面权限',
+          roles: ['SUPERADMIN'] // 或者您只能在子导航中设置角色
         }
       },
       {
@@ -155,8 +160,9 @@ export const asyncRoutes = [
         component: () => import('@/views/permission/directive'),
         name: 'DirectivePermission',
         meta: {
-          title: 'Directive Permission'
-          // if do not set roles, means: this page does not require permission
+          title: '指令权限',
+          affix: true
+          // 如果未设置角色，则表示：该页面不需要权限
         }
       },
       {
@@ -164,8 +170,8 @@ export const asyncRoutes = [
         component: () => import('@/views/permission/role'),
         name: 'RolePermission',
         meta: {
-          title: 'Role Permission',
-          roles: ['admin']
+          title: '角色权限',
+          roles: ['SUPERADMIN']
         }
       }
     ]
@@ -179,12 +185,12 @@ export const asyncRoutes = [
         path: 'index',
         component: () => import('@/views/icons/index'),
         name: 'Icons',
-        meta: { title: 'Icons', icon: 'icon', noCache: true }
+        meta: { title: '图标', icon: 'icon', noCache: true }
       }
     ]
   },
 
-  /** when your routing map is too long, you can split it into small modules **/
+  /** 当您的路由映射表太长时，您可以将其拆分为小模块 **/
   componentsRouter,
   chartsRouter,
   nestedRouter,
@@ -196,7 +202,7 @@ export const asyncRoutes = [
     redirect: '/example/list',
     name: 'Example',
     meta: {
-      title: 'Example',
+      title: '文章',
       icon: 'el-icon-s-help'
     },
     children: [
@@ -204,20 +210,20 @@ export const asyncRoutes = [
         path: 'create',
         component: () => import('@/views/example/create'),
         name: 'CreateArticle',
-        meta: { title: 'Create Article', icon: 'edit' }
+        meta: { title: '写文章', icon: 'edit' }
       },
       {
         path: 'edit/:id(\\d+)',
         component: () => import('@/views/example/edit'),
         name: 'EditArticle',
-        meta: { title: 'Edit Article', noCache: true, activeMenu: '/example/list' },
+        meta: { title: '编辑文章', noCache: true, activeMenu: '/example/list' },
         hidden: true
       },
       {
         path: 'list',
         component: () => import('@/views/example/list'),
         name: 'ArticleList',
-        meta: { title: 'Article List', icon: 'list' }
+        meta: { title: '所有文章', icon: 'list' }
       }
     ]
   },
@@ -230,7 +236,7 @@ export const asyncRoutes = [
         path: 'index',
         component: () => import('@/views/tab/index'),
         name: 'Tab',
-        meta: { title: 'Tab', icon: 'tab' }
+        meta: { title: '标签', icon: 'tab' }
       }
     ]
   },
@@ -241,7 +247,7 @@ export const asyncRoutes = [
     redirect: 'noRedirect',
     name: 'ErrorPages',
     meta: {
-      title: 'Error Pages',
+      title: '错误页面',
       icon: '404'
     },
     children: [
@@ -268,7 +274,7 @@ export const asyncRoutes = [
         path: 'log',
         component: () => import('@/views/error-log/index'),
         name: 'ErrorLog',
-        meta: { title: 'Error Log', icon: 'bug' }
+        meta: { title: '错误日志', icon: 'bug' }
       }
     ]
   },
@@ -287,25 +293,25 @@ export const asyncRoutes = [
         path: 'export-excel',
         component: () => import('@/views/excel/export-excel'),
         name: 'ExportExcel',
-        meta: { title: 'Export Excel' }
+        meta: { title: '导出电子表格' }
       },
       {
         path: 'export-selected-excel',
         component: () => import('@/views/excel/select-excel'),
         name: 'SelectExcel',
-        meta: { title: 'Export Selected' }
+        meta: { title: '导出已选择' }
       },
       {
         path: 'export-merge-header',
         component: () => import('@/views/excel/merge-header'),
         name: 'MergeHeader',
-        meta: { title: 'Merge Header' }
+        meta: { title: '合并标题' }
       },
       {
         path: 'upload-excel',
         component: () => import('@/views/excel/upload-excel'),
         name: 'UploadExcel',
-        meta: { title: 'Upload Excel' }
+        meta: { title: '上传电子表格' }
       }
     ]
   },
@@ -322,7 +328,7 @@ export const asyncRoutes = [
         path: 'download',
         component: () => import('@/views/zip/index'),
         name: 'ExportZip',
-        meta: { title: 'Export Zip' }
+        meta: { title: '下载Zip' }
       }
     ]
   },
@@ -354,7 +360,7 @@ export const asyncRoutes = [
         path: 'index',
         component: () => import('@/views/theme/index'),
         name: 'Theme',
-        meta: { title: 'Theme', icon: 'theme' }
+        meta: { title: '主题', icon: 'theme' }
       }
     ]
   },
@@ -367,7 +373,7 @@ export const asyncRoutes = [
         path: 'index',
         component: () => import('@/views/clipboard/index'),
         name: 'ClipboardDemo',
-        meta: { title: 'Clipboard', icon: 'clipboard' }
+        meta: { title: '剪贴板', icon: 'clipboard' }
       }
     ]
   },
@@ -378,7 +384,7 @@ export const asyncRoutes = [
     children: [
       {
         path: 'https://github.com/PanJiaChen/vue-element-admin',
-        meta: { title: 'External Link', icon: 'link' }
+        meta: { title: '外部链接', icon: 'link' }
       }
     ]
   },
@@ -396,8 +402,10 @@ const createRouter = () => new Router({
 const router = createRouter()
 
 // Detail see: https://github.com/vuejs/vue-router/issues/1234#issuecomment-357941465
+// 写一个重置路由的方法，切换用户后，或者退出时清除动态加载的路由
 export function resetRouter() {
   const newRouter = createRouter()
+  // 新路由实例 matcher，赋值给旧路由实例的 matcher（相当于replaceRouter）
   router.matcher = newRouter.matcher // reset router
 }
 

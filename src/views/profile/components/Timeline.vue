@@ -17,24 +17,24 @@ export default {
     return {
       timeline: [
         {
-          timestamp: '2019/4/20',
-          title: 'Update Github template',
-          content: 'PanJiaChen committed 2019/4/20 20:46'
+          timestamp: '2021/01/02',
+          title: '登录',
+          content: '完成用户登录功能'
         },
         {
-          timestamp: '2019/4/21',
-          title: 'Update Github template',
-          content: 'PanJiaChen committed 2019/4/21 20:46'
+          timestamp: '2021/01/08',
+          title: '用户列表',
+          content: '完成用户信息的CRUD'
         },
         {
-          timestamp: '2019/4/22',
-          title: 'Build Template',
-          content: 'PanJiaChen committed 2019/4/22 20:46'
+          timestamp: '2021/01/12',
+          title: '设备列表',
+          content: '完成设备信息的CRUD'
         },
         {
-          timestamp: '2019/4/23',
-          title: 'Release New Version',
-          content: 'PanJiaChen committed 2019/4/23 20:46'
+          timestamp: '2021/01/30',
+          title: '其他',
+          content: '继续完成系统其他功能的开发'
         }
       ]
     }

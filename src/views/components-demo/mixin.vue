@@ -8,12 +8,12 @@
         <div style="margin-bottom:50px;">
           <el-col :span="4" class="text-center">
             <router-link class="pan-btn blue-btn" to="/documentation/index">
-              Documentation
+              文档资料
             </router-link>
           </el-col>
           <el-col :span="4" class="text-center">
             <router-link class="pan-btn light-blue-btn" to="/icon/index">
-              Icons
+              图标
             </router-link>
           </el-col>
           <el-col :span="4" class="text-center">
@@ -23,17 +23,17 @@
           </el-col>
           <el-col :span="4" class="text-center">
             <router-link class="pan-btn green-btn" to="/table/complex-table">
-              Table
+              信息列表
             </router-link>
           </el-col>
           <el-col :span="4" class="text-center">
             <router-link class="pan-btn tiffany-btn" to="/example/create">
-              Form
+              写文章
             </router-link>
           </el-col>
           <el-col :span="4" class="text-center">
             <router-link class="pan-btn yellow-btn" to="/theme/index">
-              Theme
+              主题
             </router-link>
           </el-col>
         </div>

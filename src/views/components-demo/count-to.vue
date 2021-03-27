@@ -1,8 +1,8 @@
 <template>
   <div class="components-container">
-    <aside>
-      <a href="https://github.com/PanJiaChen/vue-countTo" target="_blank">countTo-component</a>
-    </aside>
+    <!--<aside>-->
+    <!--  基于：<a href="https://github.com/PanJiaChen/vue-countTo" target="_blank">countTo-component</a>-->
+    <!--</aside>-->
     <count-to
       ref="example"
       :start-val="_startVal"
@@ -15,7 +15,7 @@
       :autoplay="false"
       class="example"
     />
-    <div style="margin-left: 25%;margin-top: 40px;">
+    <div style="margin-left: 15%;margin-top: 30px;">
       <label class="label" for="startValInput">startVal:
         <input v-model.number="setStartVal" type="number" name="startValInput">
       </label>
@@ -26,10 +26,10 @@
         <input v-model.number="setDuration" type="number" name="durationInput">
       </label>
       <div class="startBtn example-btn" @click="start">
-        Start
+        计算得分
       </div>
       <div class="pause-resume-btn example-btn" @click="pauseResume">
-        pause/resume
+        暂停/恢复
       </div>
       <br>
       <label class="label" for="decimalsInput">decimals:
@@ -45,14 +45,80 @@
         <input v-model="setSuffix" name="suffixInput">
       </label>
     </div>
-    <aside>&lt;count-to :start-val=&#x27;{{ _startVal }}&#x27; :end-val=&#x27;{{ _endVal }}&#x27; :duration=&#x27;{{ _duration }}&#x27;
-      :decimals=&#x27;{{ _decimals }}&#x27; :separator=&#x27;{{ _separator }}&#x27; :prefix=&#x27;{{ _prefix }}&#x27; :suffix=&#x27;{{ _suffix }}&#x27;
-      :autoplay=false&gt;</aside>
+    <div style="text-align: center">
+      <el-button type="primary" style="margin-left: 16px;" @click="scoringStrategyDrawer = true">
+        管理计分策略
+      </el-button>
+    </div>
+    <el-drawer
+      title="设备绩效计分策略"
+      :with-header="false"
+      :visible.sync="scoringStrategyDrawer"
+      :direction="direction"
+      size="70%"
+    >
+      <div id="myScoringStrategy">
+        <p style="text-align: center">纳入计算绩效得分的选项：（实践室xxx）</p>
+        <el-divider><i class="el-icon-data-analysis" /></el-divider>
+        <el-row>
+          <el-col :span="10">
+            <div class="grid-content bg-purple">
+              <el-switch
+                v-model="showNumOfBorrow"
+                inactive-text=""
+                active-text="设备总借用次数"
+                active-color="#13ce66"
+              />
+              <br><br>
+              <span v-if="showNumOfBorrow" class="weightText">所占权重：</span>
+              <el-input-number v-if="showNumOfBorrow" v-model="timesWeight" size="mini" />
+            </div>
+          </el-col>
+          <el-col :span="14">
+            <div class="grid-content bg-purple-light">
+              <el-switch v-model="showUseCate" inactive-text="" active-text="借用设备使用方向" />
+              <br><br>
+              <el-checkbox-group v-if="showUseCate" v-model="checkList">
+                <el-checkbox label="科研项目" />
+                <el-checkbox label="参加比赛" />
+                <el-checkbox label="老师授课" />
+                <el-checkbox label="学生个人" />
+                <el-checkbox label="校外借用" />
+                <el-checkbox label="其他用途" />
+              </el-checkbox-group>
+            </div>
+          </el-col>
+        </el-row>
+        <el-divider />
+        <el-row>
+          <el-col :span="10">
+            <div class="grid-content bg-purple">
+              <el-switch
+                v-model="showOkRate"
+                inactive-text=""
+                active-text="检验所有借用设备的达标率"
+                active-color="#13ce66"
+              />
+              <br><br>
+              <span v-if="showOkRate" class="weightText">所占权重：</span>
+              <el-input-number v-if="showOkRate" v-model="okWeight" size="mini" />
+            </div>
+          </el-col>
+        </el-row>
+      </div>
+    </el-drawer>
+    <!--<aside>&lt;count-to :start-val=&#x27;{{ _startVal }}&#x27; :end-val=&#x27;{{ _endVal }}&#x27;-->
+    <!--  :duration=&#x27;{{ _duration }}&#x27;-->
+    <!--  :decimals=&#x27;{{ _decimals }}&#x27; :separator=&#x27;{{ _separator }}&#x27; :prefix=&#x27;{{ _prefix }}&#x27;-->
+    <!--  :suffix=&#x27;{{ _suffix }}&#x27;-->
+    <!--  :autoplay=false&gt;-->
+    <!--</aside>-->
   </div>
 </template>
 
 <script>
 import countTo from 'vue-count-to'
+import { getTheNumOfBorrow } from '@/api/performance'
 
 export default {
   name: 'CountToDemo',
@@ -64,8 +130,20 @@ export default {
       setDuration: 4000,
       setDecimals: 0,
       setSeparator: ',',
-      setSuffix: ' rmb',
-      setPrefix: '¥ '
+      setSuffix: ' 分',
+      setPrefix: '共 ',
+
+      checkList: ['选中且禁用', '复选框 A'],
+      scoringStrategyDrawer: false,
+      direction: 'btt',
+
+      showNumOfBorrow: true,
+      showOkRate: true,
+      showUseCate: false,
+
+      timesWeight: 1,
+      okWeight: 1
+
     }
   },
   computed: {
@@ -112,17 +190,63 @@ export default {
     }
   },
   methods: {
+    hello() {
+      alert('hello')
+    },
     start() {
-      this.$refs.example.start()
+      const isNums = this.showNumOfBorrow
+      if (isNums) {
+        new Promise((resolve, reject) => {
+          // 一个管理员负责一个实践室，一个实践室被多个管理员负责。
+          const userId = this.$store.getters.id
+          getTheNumOfBorrow(userId)
+            .then(resp => {
+              const multiple = this.timesWeight
+              this.setEndVal = resp.data * multiple
+              this.$refs.example.start()
+              resolve(resp)
+            })
+            .catch(err => {
+              reject(err)
+            })
+        })
+      } else {
+        this.setEndVal = 1
+        this.$refs.example.start()
+      }
     },
     pauseResume() {
       this.$refs.example.pauseResume()
+    },
+    handleClose(done) {
+      this.$confirm('确认关闭？')
+        .then(_ => {
+          done()
+        })
+        .catch(_ => {
+        })
     }
   }
 }
 </script>
 
 <style scoped>
+.components-container {
+  margin-top: 120px;
+}
+
+#myScoringStrategy {
+  margin: 10px 30px 10px;
+}
+
+.weightText {
+  /*margin-left: 30px;*/
+  /*color: #1890ff;*/
+  /*line-height: 1;*/
+  /*font-size: 14px;*/
+  /*display: inline-block;*/
+}
+
 .example-btn {
   display: inline-block;
   margin-bottom: 0;
@@ -155,9 +279,10 @@ export default {
   background-color: #fff;
   border-color: #4AB7BD;
 }
+
 .example {
   font-size: 50px;
-  color: #F6416C;
+  color: #5a85fa;
   display: block;
   margin: 10px 0;
   text-align: center;
