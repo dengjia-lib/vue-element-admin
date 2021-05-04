@@ -132,7 +132,9 @@ export default {
 }
 
 .pan-item:hover .pan-thumb {
-  transform: rotate(-110deg);
+  /* 设置旋转的度数 */
+  /*transform: rotate(-110deg);*/
+  transform: rotate(0deg);
 }
 
 .pan-item:hover .pan-info p a {

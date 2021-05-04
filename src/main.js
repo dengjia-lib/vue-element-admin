@@ -35,8 +35,8 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 Vue.use(Element, {
-  size: Cookies.get('size') || 'mini', // 设置element-ui默认大小
-  locale: enLang // 如果使用中文，无需设置，请删除
+  size: Cookies.get('size') || 'mini' // 设置element-ui默认大小
+  // locale: enLang // 如果使用中文，无需设置，请删除
 })
 
 // register global utility filters

@@ -168,16 +168,15 @@
         </span>
       </el-dialog>
     </div>
-
     <!-- 添加新用户 模态框 -->
     <div>
-      <el-dialog title="添加用户" :visible.sync="dialogAddFormVisible">
+      <el-dialog title="添加用户（注：*为必填项）" :visible.sync="dialogAddFormVisible">
         <el-form
-          ref="userDataForm"
+          ref="userAddDataForm"
           :inline="true"
           status-icon
           :rules="userInfoRules"
-          :model="detailForm"
+          :model="userDetailAddForm"
           label-width="100px"
           size="mini"
         >
@@ -185,47 +184,43 @@
                       <el-input v-model="detailForm.id" hidden></el-input>
                     </el-form-item>-->
           <el-form-item label="登录名" prop="loginName">
-            <el-input v-model="detailForm.loginName" />
+            <el-input v-model="userDetailAddForm.loginName" />
           </el-form-item>
           <el-form-item label="真实姓名" prop="realName">
-            <el-input v-model="detailForm.realName" />
+            <el-input v-model="userDetailAddForm.realName" />
           </el-form-item>
           <el-form-item label="登录密码" prop="loginPwd">
-            <el-input v-model="detailForm.loginPwd" type="password" autocomplete="off" />
+            <el-input v-model="userDetailAddForm.loginPwd" type="password" autocomplete="off" />
           </el-form-item>
           <el-form-item label="确认密码" prop="checkLoginPwd">
-            <el-input v-model="detailForm.checkLoginPwd" type="password" autocomplete="off" />
+            <el-input v-model="userDetailAddForm.checkLoginPwd" type="password" autocomplete="off" />
           </el-form-item>
           <el-form-item label="性别" style="width: 100%" prop="userSex">
-            <el-radio v-model="detailForm.userSex" :label="1" value="1">男</el-radio>
-            <el-radio v-model="detailForm.userSex" :label="2" value="2">女</el-radio>
-            <el-radio v-model="detailForm.userSex" :label="3" value="3">保密</el-radio>
+            <el-radio v-model="userDetailAddForm.userSex" :label="1" value="1">男</el-radio>
+            <el-radio v-model="userDetailAddForm.userSex" :label="2" value="2">女</el-radio>
+            <el-radio v-model="userDetailAddForm.userSex" :label="3" value="3">保密</el-radio>
           </el-form-item>
+          <!-- 在新增用户的时候，默认其角色为VISITOR，并且其不负责任何实践室，需要超级管理员后续指定 -->
           <!--          <el-form-item label="用户角色" style="width: 100%" prop="userRole">
-                      <el-select v-model="detailForm.userRole" class="filter-item" placeholder="请选择角色...">
+                      <el-select v-model="userDetailAddForm.userRole" class="filter-item" placeholder="请选择角色...">
                         <el-option v-for="(item,index) in roleInfo" :key="item" :label="item" :value="index+1"/>
                       </el-select>
                     </el-form-item>-->
           <el-form-item label="用户角色" style="width: 100%" prop="userRole">
             <el-select v-model="selectedRoles" class="filter-item" multiple placeholder="请选择角色...">
-              <el-option
-                v-for="item in roleInfo"
-                :key="item"
-                :label="item"
-                :value="item"
-              />
+              <el-option v-for="item in roleInfo" :key="item" :label="item" :value="item" />
             </el-select>
           </el-form-item>
-          <el-form-item label="负责设备库" style="width: 100%" prop="userRoom">
-            <el-select v-model="detailForm.userRoom" class="filter-item" placeholder="请选择设备库...">
+          <el-form-item v-if="adminOrSuper" label="负责设备库" style="width: 100%" prop="userRoom">
+            <el-select v-model="userDetailAddForm.userRoom" class="filter-item" clearable placeholder="请选择设备库...">
               <el-option v-for="(item,index) in roomInfo" :key="item" :label="item" :value="index+1" />
             </el-select>
           </el-form-item>
           <el-form-item label="联系手机" prop="userPhone">
-            <el-input v-model="detailForm.userPhone" />
+            <el-input v-model="userDetailAddForm.userPhone" />
           </el-form-item>
           <el-form-item label="电子邮箱" prop="userEmail">
-            <el-input v-model="detailForm.userEmail" />
+            <el-input v-model="userDetailAddForm.userEmail" />
           </el-form-item>
           <!--          <el-form-item label="创建时间">
                       <el-input v-model="detailForm.createTime" readonly disabled></el-input>
@@ -241,7 +236,7 @@
                     </el-form-item>-->
           <el-form-item label="备注" prop="remark">
             <el-input
-              v-model="detailForm.remark"
+              v-model="userDetailAddForm.remark"
               style="width:400px"
               :autosize="{ minRows: 2, maxRows: 3}"
               type="textarea"
@@ -251,55 +246,65 @@
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button size="mini" @click="dialogAddFormVisible = false">返 回</el-button>
-          <!--          <el-button @click="clearDetailForm()" size="mini">重 置</el-button>-->
-          <el-button size="mini" @click="resetForm('userDataForm')">重 置</el-button>
+          <!--          <el-button @click="clearUserDetailAddForm()" size="mini">清 空</el-button>-->
+          <el-button size="mini" @click="resetForm('userAddDataForm')">重 置</el-button>
           <!--          <el-button type="primary" @click="dialogStatus==='create'?createData():updateData()">添加</el-button>-->
-          <el-button type="primary" size="mini" @click="submitAddForm('userDataForm')">添加</el-button>
+          <el-button type="primary" size="mini" @click="submitAddForm('userAddDataForm')">添加</el-button>
         </div>
       </el-dialog>
     </div>
     <!-- 用户详细信息 模态框 -->
     <div>
-      <el-dialog title="详细信息" :visible.sync="dialogDetailFormVisible">
+      <el-dialog title="用户详细信息" :visible.sync="dialogDetailFormVisible">
         <el-form ref="detailForm" :inline="true" :model="detailForm" label-width="100px" size="mini">
-          <el-form-item label="用户id" class="change-label-class">
-            <el-input v-model="detailForm.id" disabled readonly />
+          <el-row>
+            <el-col :span="10" align="center">
+              <el-form-item style="width: 60%">
+                <el-image :src="detailForm.userPicture" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="14">
+              <!-- id应该隐藏起来，仅开发使用，用户不可见 -->
+              <el-form-item v-permission="['SUPERADMIN']" label="用户id" class="change-label-class">
+                <el-input v-model="detailForm.id" disabled readonly />
+              </el-form-item>
+              <el-form-item label="登录名">
+                <el-input v-model="detailForm.loginName" readonly />
+              </el-form-item>
+              <el-form-item label="真实姓名">
+                <el-input v-model="detailForm.realName" readonly />
+              </el-form-item>
+              <el-form-item label="性别">
+                <el-radio v-model="detailForm.userSex" label="男" disabled>男</el-radio>
+                <el-radio v-model="detailForm.userSex" label="女" disabled>女</el-radio>
+                <el-radio v-model="detailForm.userSex" label="保密" disabled>保密</el-radio>
+              </el-form-item>
+              <el-form-item label="负责设备库">
+                <el-input v-model="detailForm.userRoom" readonly />
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-form-item label="联系手机">
+            <el-input v-model="detailForm.userPhone" readonly />
           </el-form-item>
-          <el-form-item label="登录名">
-            <el-input v-model="detailForm.loginName" readonly />
-          </el-form-item>
-          <el-form-item label="真实姓名">
-            <el-input v-model="detailForm.realName" readonly />
-          </el-form-item>
-          <el-form-item label="性别">
-            <el-radio v-model="detailForm.userSex" label="男" disabled>男</el-radio>
-            <el-radio v-model="detailForm.userSex" label="女" disabled>女</el-radio>
-            <el-radio v-model="detailForm.userSex" label="保密" disabled>保密</el-radio>
+          <el-form-item label="电子邮箱">
+            <el-input v-model="detailForm.userEmail" readonly />
           </el-form-item>
           <el-form-item label="用户角色">
             <el-select v-model="selectedRoles" multiple placeholder="用户角色列表" disabled>
               <el-option v-for="item in roleInfo" :key="item" :label="item" :value="item" />
             </el-select>
           </el-form-item>
-          <el-form-item label="负责设备库">
-            <el-input v-model="detailForm.userRoom" readonly />
-          </el-form-item>
-          <el-form-item label="联系电话">
-            <el-input v-model="detailForm.userPhone" readonly />
-          </el-form-item>
-          <el-form-item label="电子邮箱">
-            <el-input v-model="detailForm.userEmail" readonly />
-          </el-form-item>
-          <el-form-item label="创建时间">
+          <el-form-item v-permission="['SUPERADMIN']" label="创建时间">
             <el-input v-model="detailForm.createTime" readonly />
           </el-form-item>
-          <el-form-item label="登录时间">
+          <el-form-item v-permission="['SUPERADMIN']" label="登录时间">
             <el-input v-model="detailForm.loginTime" readonly />
           </el-form-item>
-          <el-form-item label="上一次登录">
+          <el-form-item v-permission="['SUPERADMIN']" label="上一次登录">
             <el-input v-model="detailForm.lastLoginTime" readonly />
           </el-form-item>
-          <el-form-item label="登录次数">
+          <el-form-item v-permission="['SUPERADMIN']" label="登录次数">
             <el-input v-model="detailForm.loginCount" readonly />
           </el-form-item>
           <el-form-item label="备注">
@@ -321,56 +326,83 @@
     </div>
     <!-- 编辑用户信息 模态框 -->
     <div>
-      <el-dialog title="编辑用户" :visible.sync="dialogModifyFormVisible">
-        <el-form ref="userDataForm" :inline="true" :model="detailForm" label-width="100px" size="mini">
-          <el-form-item label="用户id" class="change-label-class">
-            <el-input v-model="detailForm.id" disabled readonly />
-          </el-form-item>
-          <el-form-item label="登录名">
-            <el-input v-model="detailForm.loginName" />
-          </el-form-item>
-          <el-form-item label="真实姓名">
-            <el-input v-model="detailForm.realName" />
-          </el-form-item>
-          <el-form-item label="性别">
-            <el-radio v-model="detailForm.userSex" :label="1" value="1">男</el-radio>
-            <el-radio v-model="detailForm.userSex" :label="2" value="2">女</el-radio>
-            <el-radio v-model="detailForm.userSex" :label="3" value="3">保密</el-radio>
-          </el-form-item>
-          <el-form-item label="用户角色">
-            <el-select v-model="selectedRoles" multiple placeholder="用户角色列表">
-              <el-option
-                v-for="item in roleInfo"
-                :key="item"
-                :label="item"
-                :value="item"
-              />
-            </el-select>
-          </el-form-item>
-          <el-form-item label="负责设备库">
-            <el-select v-model="detailForm.userRoom" class="filter-item" placeholder="请选择设备库...">
-              <el-option v-for="(item,index) in roomInfo" :key="item" :label="item" :value="index+1" />
-            </el-select>
-          </el-form-item>
-          <el-form-item label="联系电话">
+      <el-dialog title="编辑用户详细信息（注：*为必填项）" :visible.sync="dialogModifyFormVisible" :before-close="handleQuitModifyUser">
+        <el-form
+          ref="userDataForm"
+          :inline="true"
+          :rules="userInfoRules"
+          :model="detailForm"
+          label-width="100px"
+          size="mini"
+        >
+          <el-row>
+            <el-col :span="10" align="center">
+              <div align="center" style="width: 60%">
+                <el-upload
+                  class="avatar-uploader"
+                  :action="avatarApi"
+                  :show-file-list="false"
+                  :on-success="handleFileSuccess"
+                  :before-upload="beforeFileUpload"
+                  :headers="headers"
+                >
+                  <img v-if="avatarUrl" :src="avatarUrl" class="avatar">
+                  <i v-else class="el-icon-plus avatar-uploader-icon" />
+                </el-upload>
+              </div>
+            </el-col>
+            <el-col :span="14">
+              <el-form-item v-if="false" label="用户id" class="change-label-class">
+                <el-input v-model="detailForm.id" disabled readonly />
+              </el-form-item>
+              <el-form-item label="登录名" prop="loginName">
+                <el-input v-model="detailForm.loginName" />
+              </el-form-item>
+              <el-form-item label="真实姓名" prop="realName">
+                <el-input v-model="detailForm.realName" />
+              </el-form-item>
+              <el-form-item label="性别" prop="userSex">
+                <el-radio v-model="detailForm.userSex" :label="1" value="1">男</el-radio>
+                <el-radio v-model="detailForm.userSex" :label="2" value="2">女</el-radio>
+                <el-radio v-model="detailForm.userSex" :label="3" value="3">保密</el-radio>
+              </el-form-item>
+              <el-form-item label="用户角色" prop="userRole">
+                <el-select v-model="selectedRoles" multiple placeholder="用户角色列表">
+                  <el-option
+                    v-for="item in roleInfo"
+                    :key="item"
+                    :label="item"
+                    :value="item"
+                  />
+                </el-select>
+              </el-form-item>
+              <!-- 负责设备库的显示逻辑应该是：用户是管理员或超级管理员才进行显示，因为普通用户（VISITOR）根本没必要显示。 -->
+              <el-form-item v-if="adminOrSuper" label="负责设备库" prop="userRoom">
+                <el-select v-model="detailForm.userRoom" class="filter-item" clearable placeholder="请选择设备库...">
+                  <el-option v-for="(item,index) in roomInfo" :key="item" :label="item" :value="index+1" />
+                </el-select>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-form-item label="联系手机" prop="userPhone">
             <el-input v-model="detailForm.userPhone" />
           </el-form-item>
-          <el-form-item label="电子邮箱">
+          <el-form-item label="电子邮箱" prop="userEmail">
             <el-input v-model="detailForm.userEmail" />
           </el-form-item>
-          <el-form-item label="创建时间">
+          <el-form-item v-if="false" label="创建时间">
             <el-input v-model="detailForm.createTime" readonly disabled />
           </el-form-item>
-          <el-form-item label="登录时间">
+          <el-form-item v-if="false" label="登录时间">
             <el-input v-model="detailForm.loginTime" readonly disabled />
           </el-form-item>
-          <el-form-item label="上一次登录">
+          <el-form-item v-if="false" label="上一次登录">
             <el-input v-model="detailForm.lastLoginTime" readonly disabled />
           </el-form-item>
-          <el-form-item label="登录次数">
+          <el-form-item v-if="false" label="登录次数">
             <el-input v-model="detailForm.loginCount" readonly disabled />
           </el-form-item>
-          <el-form-item label="备注">
+          <el-form-item label="备注" prop="remark">
             <el-input
               v-model="detailForm.remark"
               style="width:400px"
@@ -382,14 +414,9 @@
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button size="mini" @click="dialogModifyFormVisible = false">取 消</el-button>
-          <el-button size="mini" @click="clearDetailForm">清 空</el-button>
-          <el-button
-            type="primary"
-            size="mini"
-            @click="dialogModifyFormVisible = false;submitModifyForm()"
-          >
-            修 改
-          </el-button>
+          <el-button size="mini" @click="resetForm('userDataForm')">重 置</el-button>
+          <!--          <el-button size="mini" @click="clearUserDetailAddForm">重 置</el-button>-->
+          <el-button type="primary" size="mini" @click="submitModifyForm('userDataForm')">修 改</el-button>
         </div>
       </el-dialog>
     </div>
@@ -440,7 +467,7 @@ export default {
       if (value === '') {
         callback(new Error('请输入密码'))
       } else {
-        if (this.detailForm.checkLoginPwd !== '') {
+        if (this.userDetailAddForm.checkLoginPwd !== '') {
           this.$refs.ruleForm.validateField('checkLoginPwd')
         }
         callback()
@@ -449,8 +476,15 @@ export default {
     const validateCheckLoginPwd = (rule, value, callback) => {
       if (value === '') {
         callback(new Error('请再次输入密码'))
-      } else if (value !== this.detailForm.loginPwd) {
+      } else if (value !== this.userDetailAddForm.loginPwd) {
         callback(new Error('两次输入密码不一致!'))
+      } else {
+        callback()
+      }
+    }
+    const validateUserRole = (rule, value, callback) => {
+      if (this.selectedRoles.length === 0) {
+        callback(new Error('请选择用户角色！'))
       } else {
         callback()
       }
@@ -487,8 +521,12 @@ export default {
         }
       }, 100)
     }
-
     return {
+      headers: {
+        token: localStorage.getItem('user_token')
+      },
+      avatarApi: 'http://localhost:8080/user/upload/avatar',
+      avatarUrl: '',
       // 默认 详细信息、修改模态框 表单不可见（通过点击按钮方可显示）
       dialogDetailFormVisible: false,
       dialogModifyFormVisible: false,
@@ -510,23 +548,43 @@ export default {
             }
           ]
         }],
-      // 详细的表单信息，用于填充详细信息表单 和 修改表单的默认信息 和 添加表单
+      // 详细的表单信息，用于填充详细信息表单 和 修改表单的默认信息
       detailForm: {
         id: null,
-        loginName: null,
+        loginName: '',
         loginPwd: '',
         checkLoginPwd: '',
-        realName: null,
+        realName: '',
         userSex: 3,
         userRole: null,
         userRoom: null,
-        userPhone: null,
-        userEmail: null,
+        userPhone: '',
+        userEmail: '',
         createTime: null,
         loginTime: null,
         lastLoginTime: null,
         loginCount: null,
-        remark: null
+        userPicture: '',
+        remark: ''
+      },
+      // 详细的表单信息，添加表单
+      userDetailAddForm: {
+        id: null,
+        loginName: '',
+        loginPwd: '',
+        checkLoginPwd: '',
+        realName: '',
+        userSex: 3,
+        userRole: null,
+        userRoom: null,
+        userPhone: '',
+        userEmail: '',
+        createTime: null,
+        loginTime: null,
+        lastLoginTime: null,
+        loginCount: null,
+        userPicture: '',
+        remark: ''
       },
       /* roomInfo: {
         id: null,
@@ -586,9 +644,10 @@ export default {
         ],
         realName: [
           { required: true, message: '请输入真实姓名', trigger: 'blur' },
-          { min: 3, max: 16, message: '长度在 3 到 16 个字符', trigger: 'blur' }
+          { min: 2, max: 16, message: '长度在 2 到 16 个字符', trigger: 'blur' }
         ],
-        // loginPwd: [{ validator: validateLoginPwd, trigger: 'blur' }],
+        userSex: [{ required: false }],
+        userRole: [{ validator: validateUserRole, required: true, message: '请选择用户角色', trigger: 'blur' }],
         loginPwd: [
           { required: true, message: '请输入密码', trigger: 'blur' },
           {
@@ -598,9 +657,7 @@ export default {
           }
         ],
         checkLoginPwd: [{ validator: validateCheckLoginPwd, required: true, trigger: 'blur' }],
-        // userRole: [{ required: true, message: '请选择用户角色', trigger: 'change' }],
         userRoom: [{ required: true, message: '请选择用户负责设备库', trigger: 'change' }],
-        // userPhone: [{ validator: checkUserPhone, required: true, trigger: 'blur' }],
         userPhone: [
           { required: true, message: '请输入手机号', trigger: 'blur' },
           {
@@ -608,20 +665,27 @@ export default {
             message: '请输入正确的手机号码格式'
           }
         ],
-
-        // userEmail: [{ validator: checkUserEmail, required: true, trigger: 'blur' }]
         userEmail: [
           { required: true, message: '请输入电子邮箱', trigger: 'blur' },
           {
             pattern: /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(.[a-zA-Z0-9_-])+/,
             message: '请输入正确的电子邮箱格式'
           }
-        ]
-        /* type: [{ required: true, message: 'type is required', trigger: 'change' }],
-        timestamp: [{ type: 'date', required: true, message: 'timestamp is required', trigger: 'change' }],
-        title: [{ required: true, message: 'title is required', trigger: 'blur' }]*/
+        ],
+        remark: [{ required: false }]
       },
       downloadLoading: false
+    }
+  },
+  computed: {
+    adminOrSuper() {
+      const roles = this.selectedRoles
+      for (const role of roles) {
+        if (role === 'SUPERADMIN' || role === 'ADMIN') {
+          return true
+        }
+      }
+      return false
     }
   },
   created() {
@@ -637,6 +701,20 @@ export default {
     getUserList() {
       new Promise((resolve, reject) => {
         getUserList({ page: this.currentPage, limit: this.currentSize })
+          .then(resp => {
+            this.backendTransferToFrontend(resp)
+            // 是单页数据吗？
+            // this.isPageSinglePage = resp.data.total > 0
+            resolve(resp)
+          })
+          .catch(err => {
+            reject(err)
+          })
+      })
+    },
+    getUserPage(page, size) {
+      new Promise((resolve, reject) => {
+        getUserList({ page: page, limit: size })
           .then(resp => {
             this.backendTransferToFrontend(resp)
             // 是单页数据吗？
@@ -732,12 +810,14 @@ export default {
     // 清空表单数据操作
     resetForm(formName) {
       // this.clearForm()
+      // 清空用户已选择的角色
+      this.selectedRoles = []
+      // 清空表单域和校验规则
       this.$nextTick(() => {
         if (this.$refs[formName] !== undefined) {
           this.$refs[formName].resetFields()
         }
       })
-      /* this.$refs[formName].resetFields();*/
     },
     clearForm() {
       // 隐藏对话框
@@ -775,67 +855,102 @@ export default {
       })
     },
     // 用于添加/修改用户的时候清空表单
-    clearDetailForm() {
+    clearUserDetailAddForm() {
       this.detailForm.id = null
-      this.detailForm.loginName = null
-      this.detailForm.loginPwd = null
-      this.detailForm.realName = null
-      this.detailForm.userSex = null
+      this.detailForm.loginName = ''
+      this.detailForm.loginPwd = ''
+      this.detailForm.checkLoginPwd = ''
+      this.detailForm.realName = ''
+      this.detailForm.userSex = 3
       this.detailForm.userRole = null
-
-      this.selectedRoles = null
-
+      this.selectedRoles = []
       this.detailForm.userRoom = null
-      this.detailForm.userPhone = null
-      this.detailForm.userEmail = null
+      this.detailForm.userPhone = ''
+      this.detailForm.userEmail = ''
       this.detailForm.createTime = null
       this.detailForm.loginTime = null
       this.detailForm.lastLoginTime = null
       this.detailForm.loginCount = null
-      this.detailForm.remark = null
+      this.detailForm.userPicture = ''
+      this.detailForm.remark = ''
     },
 
     // 处理点击添加按钮的请求
     handleAddUser() {
       // 添加用户之前先清空表单值 和 表单的验证提示信息
-      // this.resetForm('userDataForm')
-      this.clearDetailForm()
+      // this.resetForm('userAddDataForm')
+
+      // 清空表单数据
+      // this.clearUserDetailAddForm()
+
       this.$nextTick(() => {
-        this.$refs['userDataForm'].clearValidate()
+        // // 清空校验信息
+        // this.$refs['userAddDataForm'].clearValidate()
+        // 清空表单信息
+        this.$refs['userAddDataForm'].resetFields()
+        // 清空角色信息
+        this.selectedRoles = []
       })
+
       // this.resetForm('detailForm')
       // this.dialogAddFormVisible = true
       /* this.resetTemp()
       this.dialogStatus = 'create'*/
       /* this.$nextTick(() => {
-        this.$refs['userDataForm'].clearValidate()
+        this.$refs['userAddDataForm'].clearValidate()
       })*/
     },
+    // 编辑上传用户头像
+    handleFileSuccess(res, file) {
+      this.avatarUrl = res.data
+    },
+    beforeFileUpload(file) {
+      const isJPG = file.type === 'image/jpeg'
+      const isPNG = file.type === 'image/png'
+      const isLt2M = file.size / 1024 / 1024 < 2
+
+      if (!isJPG && !isPNG) {
+        this.$message.error('上传头像/图片只能是 JPG 格式!')
+      }
+      if (!isLt2M) {
+        this.$message.error('上传头像/图片大小不能超过 2MB!')
+      }
+      return (isJPG || isPNG) && isLt2M
+    },
     // 处理提交添加表单请求
-    submitAddForm(userDataForm) {
-      this.$refs[userDataForm].validate((valid) => {
+    submitAddForm(userAddDataForm) {
+      this.$refs[userAddDataForm].validate((valid) => {
         if (valid) {
           // 表单校验通过
-          this.detailForm.loginCount = 1
-          this.detailForm.createTime = new Date().getTime()
+          this.userDetailAddForm.loginCount = 1
+          this.userDetailAddForm.createTime = new Date().getTime()
+          // 设置用户角色
+          this.userDetailAddForm.authorities = this.selectedRoles
+          // 设置用户默认头像
+          this.userDetailAddForm.userPicture = 'http://img.djosimon.top/3d720df516b049a297c384d5c9770514.png'
           new Promise((resolve, reject) => {
-            this.detailForm.remark += '_' + this.selectedRoles.toString()
-            addUser(this.detailForm)
+            // this.userDetailAddForm.remark += '_' + this.selectedRoles.toString()
+            // this.userDetailAddForm.userRole = this.selectedRoles.toString()
+            addUser(this.userDetailAddForm)
               .then(resp => {
+                console.log('add jump resp')
+                console.log(resp)
                 const isSuccess = resp.data === true
                 this.dialogAddFormVisible = false
                 isSuccess
                   ? this.$message({
                     showClose: true,
-                    message: '用户【' + this.detailForm.loginName + '】添加成功。',
+                    message: '用户【' + this.userDetailAddForm.loginName + '】添加成功。',
                     type: 'success'
                   })
                   : this.$message({
                     // 失败，给出提示信息
                     showClose: true,
-                    message: '用户【' + this.detailForm.loginName + '】添加失败，请检查后重新提交。',
+                    message: '用户【' + this.userDetailAddForm.loginName + '】添加失败，请检查后重新提交。',
                     type: 'warning'
                   })
+                // 添加用户成功后，应该跳转到最后一页。
+                // this.getUserList()
               })
               .catch(err => {
                 reject(err)
@@ -850,25 +965,40 @@ export default {
 
     // 处理展示用户详情信息请求
     handleShowUser(row) {
+      this.detailForm = row
+      // 用户角色列表的展示
       this.selectedRoles = []
       const roleStr = row.userRole
       const roleList = roleStr.split(' | ')
-      // 用户角色列表的展示
       for (let i = 0; i < roleList.length; i++) {
         const roleName = roleList[i]
         this.selectedRoles.push(roleName)
       }
-      this.detailForm = row
+      // 用户详细信息的展示
+      new Promise((resolve, reject) => {
+        getUserById(row.id)
+          .then(resp => {
+            this.avatarUrl = resp.data.userPicture
+          })
+          .catch(err => {
+            reject(err)
+          })
+      })
     },
 
     // 处理点击修改按钮
     handleModifyUser(row, index) {
+      this.$nextTick(() => {
+        // 清空校验信息
+        this.$refs['userDataForm'].clearValidate()
+      })
+      this.avatarApi += '/' + row.id
       // index：当前表格页面的index值。
       // 用户点击修改按钮，发送异步请求到后端，后端处理请求并且返回给前端进行展示。
       this.selectedRoles = []
       new Promise((resolve, reject) => {
         getUserById(row.id)
-          .then((resp) => {
+          .then(resp => {
             const userEntity = resp.data
             const authorities = userEntity.authorities
             const authLength = authorities.length
@@ -881,39 +1011,59 @@ export default {
             }
             userEntity.userRole = authList.toString().replace(/,/g, ' | ')
             this.detailForm = userEntity
+            this.avatarUrl = resp.data.userPicture
             resolve(resp)
-          }, (err) => {
-            reject(err)
-          })
-      })
-    },
-    // 处理提交修改表单
-    submitModifyForm() {
-      // let form = JSON.stringify(this.detailForm)
-      // form默认的提交方式content-type是x-www-form-urlencoded, 后端接收为@RequestBody,需要content-type是application/json
-      new Promise((resolve, reject) => {
-        /* this.detailForm.authorities = 'VISITOR | ADMIN'*/
-        this.detailForm.remark += '_' + this.selectedRoles.toString()
-        modifyUser(this.detailForm)
-          .then(resp => {
-            const isSuccess = resp.data === true
-            isSuccess
-              ? this.$message({
-                showClose: true,
-                message: '用户【' + this.detailForm.id + '】修改成功。',
-                type: 'success'
-              })
-              : this.$message({
-                // 失败，给出提示信息
-                showClose: true,
-                message: '用户【' + this.detailForm.id + '】修改失败，请检查后重新提交。',
-                type: 'warning'
-              })
-            this.getUserList()
           })
           .catch(err => {
             reject(err)
           })
+      })
+    },
+    // 处理退出编辑模态框
+    handleQuitModifyUser(done) {
+      // 退出编辑框，现在要做的是：将请求后端上传图片文件的api还原（不带设备id路径变量）
+      const url = this.avatarApi
+      this.avatarApi = url.substring(0, url.lastIndexOf('/'))
+      done()
+    },
+    // 处理提交修改表单
+    submitModifyForm(userDataForm) {
+      // let form = JSON.stringify(this.detailForm)
+      // form默认的提交方式content-type是x-www-form-urlencoded, 后端接收为@RequestBody,需要content-type是application/json
+
+      this.$refs[userDataForm].validate((valid) => {
+        if (valid) {
+          // 表单校验通过
+          new Promise((resolve, reject) => {
+            /* this.detailForm.authorities = 'VISITOR | ADMIN'*/
+            // this.detailForm.remark += '_' + this.selectedRoles.toString()
+            this.detailForm.authorities = this.selectedRoles
+            modifyUser(this.detailForm)
+              .then(resp => {
+                const isSuccess = resp.data === true
+                this.dialogModifyFormVisible = false
+                isSuccess
+                  ? this.$message({
+                    showClose: true,
+                    message: '用户【' + this.detailForm.id + '】修改成功。',
+                    type: 'success'
+                  })
+                  : this.$message({
+                    // 失败，给出提示信息
+                    showClose: true,
+                    message: '用户【' + this.detailForm.id + '】修改失败，请检查后重新提交。',
+                    type: 'warning'
+                  })
+                this.getUserList()
+              })
+              .catch(err => {
+                reject(err)
+              })
+          })
+        } else {
+          console.log('错误提交！！')
+          return false
+        }
       })
     },
 
@@ -967,7 +1117,6 @@ export default {
     handleCurrentPageChange(currentPage) {
       this.$store.state.currentPage = currentPage
       const size = this.$store.state.currentSize
-
       const query = {
         page: currentPage,
         limit: size,
@@ -975,7 +1124,6 @@ export default {
         userRole: this.listQuery.userRole,
         userRoom: this.listQuery.userRoom
       }
-
       new Promise((resolve, reject) => {
         fetchUserListByQuery(query)
           .then((resp) => {
@@ -1139,3 +1287,32 @@ export default {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+.avatar-uploader .el-upload {
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.avatar-uploader .el-upload:hover {
+  border-color: #409EFF;
+}
+
+.avatar-uploader-icon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 178px;
+  height: 178px;
+  line-height: 178px;
+  text-align: center;
+}
+
+.avatar {
+  width: 178px;
+  height: 178px;
+  display: block;
+}
+</style>

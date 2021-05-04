@@ -19,8 +19,8 @@
               <el-tab-pane label="账户" name="account">
                 <account :user="user" />
               </el-tab-pane>
-              <el-tab-pane label="更改密码" name="changepwd">
-                <account :pwd="pwd" />
+              <el-tab-pane label="修改密码" name="changePwd">
+                <change-pwd :pwd="pwd" />
               </el-tab-pane>
             </el-tabs>
           </el-card>
@@ -72,6 +72,11 @@ export default {
         introduction: this.introduction,
         role: this.roles.join(' | '),
         email: this.email
+      }
+    },
+    getPwd() {
+      this.pwd = {
+        oldPwd: this.loginPwd
       }
     }
   }

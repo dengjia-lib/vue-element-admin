@@ -12,6 +12,21 @@ export function login(data) {
   })
 }
 
+export function registerUser(data) {
+  return request({
+    url: 'http://localhost:8080/register',
+    method: 'post',
+    data
+  })
+}
+
+// export function registerUser() {
+//   return request({
+//     url: 'http://localhost:8080/register',
+//     method: 'post'
+//   })
+// }
+
 export function getInfo(token) {
   return request({
     url: 'http://localhost:8080/getUserVOInfo',
@@ -48,11 +63,33 @@ export function deleteUser(id) {
   })
 }
 
-export function modifyUser(data) {
+export function modifyProfile(data) {
   return request({
     url: 'http://localhost:8080/user/modifyProfile',
     method: 'put',
     data
+  })
+}
+
+export function modifyUser(data) {
+  return request({
+    url: 'http://localhost:8080/user/modify',
+    method: 'put',
+    data
+  })
+}
+
+/**
+ * 用户修改密码
+ */
+export function changePwd(data) {
+  return request({
+    url: 'http://localhost:8080/user/changePwd',
+    method: 'get',
+    params: {
+      oldPwd: data.oldPwd,
+      newPwd: data.newPwd
+    }
   })
 }
 

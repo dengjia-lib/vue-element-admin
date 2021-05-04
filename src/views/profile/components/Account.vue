@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import { modifyUser } from '@/api/user'
+import { modifyProfile } from '@/api/user'
 
 export default {
   props: {
@@ -30,6 +30,15 @@ export default {
           introduction: ''
         }
       }
+    },
+    pwd: {
+      type: Object,
+      default: () => {
+        return {
+          oldPwd: '',
+          newPwd: ''
+        }
+      }
     }
   },
   methods: {
@@ -41,9 +50,8 @@ export default {
         userEmail: user.email,
         remark: user.introduction
       }
-      console.log(data)
       new Promise((resolve, reject) => {
-        modifyUser(data)
+        modifyProfile(data)
           .then(resp => {
             const isSuccess = resp.data === true
             isSuccess

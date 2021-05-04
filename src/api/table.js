@@ -60,6 +60,17 @@ export function fetchEquListByQuery(data) {
   })
 }
 
+export function getLogList(data) {
+  return request({
+    url: 'http://localhost:8080/log/page',
+    method: 'get',
+    params: {
+      page: data.page,
+      limit: data.limit
+    }
+  })
+}
+
 export function getRoomInfo() {
   return request({
     url: 'http://localhost:8080/room/all',

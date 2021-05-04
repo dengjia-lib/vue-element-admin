@@ -280,6 +280,19 @@ export const asyncRoutes = [
   },
 
   {
+    path: '/operate-log',
+    component: Layout,
+    children: [
+      {
+        path: 'log',
+        component: () => import('@/views/operate-log/index'),
+        name: 'OperateLog',
+        meta: { title: '操作日志', icon: 'documentation' }
+      }
+    ]
+  },
+
+  {
     path: '/excel',
     component: Layout,
     redirect: '/excel/export-excel',

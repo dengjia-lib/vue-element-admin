@@ -1,98 +1,136 @@
 <template>
   <div>
-    <!--    https://www.cnblogs.com/qxxblogs/p/12388482.html-->
-    <!-- 背景图片div -->
-    <div class="background">
-      <img :src="imgSrc" width="100%" style="position: fixed" alt="">
-    </div>
-    <!-- 登录表单 -->
-    <div class="login-container">
-      <el-form
-        ref="loginForm"
-        :model="loginForm"
-        :rules="loginRules"
-        class="login-form"
-        autocomplete="on"
-        label-position="left"
-      >
+    <div>
+      <!--    https://www.cnblogs.com/qxxblogs/p/12388482.html-->
+      <!-- 背景图片div -->
+      <div class="background">
+        <img :src="imgSrc" width="100%" style="position: fixed" alt="">
+      </div>
+      <!-- 登录表单、注册按钮 -->
+      <div class="login-container">
+        <el-form
+          ref="loginForm"
+          :model="loginForm"
+          :rules="loginRules"
+          class="login-form"
+          autocomplete="on"
+          label-position="left"
+        >
 
-        <div class="title-container">
-          <h3 class="title">教学基地设备管理系统</h3>
-        </div>
-
-        <el-form-item prop="username">
-          <span class="svg-container">
-            <svg-icon icon-class="user" />
-          </span>
-          <el-input
-            ref="username"
-            v-model="loginForm.username"
-            placeholder="用户名"
-            name="username"
-            type="text"
-            tabindex="1"
-            autocomplete="off"
-            @keyup.enter.native="handleLogin"
-          />
-        </el-form-item>
-
-        <el-tooltip v-model="capsTooltip" content="大写锁定已打开" placement="left" manual>
-          <el-form-item prop="password">
-            <span class="svg-container">
-              <svg-icon icon-class="password" />
-            </span>
+          <div class="title-container"><h3 class="title">教学基地设备管理系统</h3></div>
+          <!-- 登录名输入框 -->
+          <el-form-item prop="username">
+            <span class="svg-container"><svg-icon icon-class="user" /></span>
             <el-input
-              :key="passwordType"
-              ref="password"
-              v-model="loginForm.password"
-              :type="passwordType"
-              placeholder="密码"
-              name="password"
-              tabindex="2"
+              ref="username"
+              v-model="loginForm.username"
+              placeholder="用户名"
+              name="username"
+              type="text"
+              tabindex="1"
               autocomplete="off"
-              @keyup.native="checkCapslock"
-              @blur="capsTooltip = false"
               @keyup.enter.native="handleLogin"
             />
-            <span class="show-pwd" @click="showPwd">
-              <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
-            </span>
           </el-form-item>
-        </el-tooltip>
+          <!-- 登录密码输入框 -->
+          <el-tooltip v-model="capsTooltip" content="大写锁定已打开" placement="left" manual>
+            <el-form-item prop="password">
+              <span class="svg-container"><svg-icon icon-class="password" /></span>
+              <el-input
+                :key="passwordType"
+                ref="password"
+                v-model="loginForm.password"
+                :type="passwordType"
+                placeholder="密码"
+                name="password"
+                tabindex="2"
+                autocomplete="off"
+                @keyup.native="checkCapslock"
+                @blur="capsTooltip = false"
+                @keyup.enter.native="handleLogin"
+              />
+              <span class="show-pwd" @click="showPwd">
+                <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
+              </span>
+            </el-form-item>
+          </el-tooltip>
 
-        <el-button
-          :loading="loading"
-          type="primary"
-          style="width:100%;margin-bottom:30px;"
-          @click.native.prevent="handleLogin"
-        >登录
-        </el-button>
+          <el-row :gutter="20">
+            <el-col :span="16">
+              <div class="grid-content bg-purple">
+                <el-button
+                  :loading="loading"
+                  type="primary"
+                  style="width:100%;margin-bottom:30px;"
+                  @click.native.prevent="handleLogin"
+                >登录
+                </el-button>
+              </div>
+            </el-col>
+            <el-col :span="8">
+              <div class="grid-content bg-purple">
+                <el-button
+                  style="width:100%;margin-bottom:30px;"
+                  @click="handleRegisterUser();dialogRegisterFormVisible = true"
+                >注册
+                </el-button>
+              </div>
+            </el-col>
+          </el-row>
 
-        <div style="position:relative">
-          <div class="tips">
-            <span>【管理员】</span>
-            <span style="margin-right:18px;">用户名 : admin</span>
-            <span>密码 : any</span>
+          <div style="position:relative">
+            <div class="tips">
+              <span>【管理员】</span>
+              <span style="margin-right:18px;">用户名 : admin</span>
+              <span>密码 : any</span>
+            </div>
+            <div class="tips">
+              <!--          <span style="margin-right:18px;">Username : editor</span>-->
+              <span>【普通人】</span>
+              <span style="margin-right:18px;">用户名 : editor</span>
+              <span>密码 : any</span>
+            </div>
+
+            <el-button class="thirdParty-button" type="primary" @click="showDialog=true">
+              第三方登录
+            </el-button>
           </div>
-          <div class="tips">
-            <!--          <span style="margin-right:18px;">Username : editor</span>-->
-            <span>【普通人】</span>
-            <span style="margin-right:18px;">用户名 : editor</span>
-            <span>密码 : any</span>
-          </div>
-
-          <el-button class="thirdParty-button" type="primary" @click="showDialog=true">
-            第三方登录
-          </el-button>
+        </el-form>
+        <el-dialog title="第三方登录" :visible.sync="showDialog">
+          <!--      can not be simulated on local, so please combine you own business simulation! ! !-->
+          不能在本地模拟，因此请结合您自己的业务模拟！！！
+          <br>
+          <br>
+          <br>
+          <social-sign />
+        </el-dialog>
+      </div>
+    </div>
+    <!-- 注册新用户 模态框 -->
+    <div>
+      <el-dialog v-model="dialogRegisterFormVisible" title="注册用户" :visible.sync="dialogRegisterFormVisible">
+        <el-form
+          v-if="dialogRegisterFormVisible"
+          ref="userRegisterForm"
+          :inline="true"
+          status-icon
+          :rules="userRegisterRules"
+          :model="registerForm"
+          label-width="100px"
+          size="mini"
+        >
+          <el-form-item label="用户名" prop="loginName">
+            <el-input v-model="registerForm.loginName" placeholder="请输入注册用户名" />
+          </el-form-item>
+          <el-form-item label="密码" prop="loginPwd">
+            <el-input v-model="registerForm.loginPwd" type="password" autocomplete="off" placeholder="请输入注册密码" />
+          </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button size="mini" @click="dialogRegisterFormVisible = false">取 消</el-button>
+          <el-button size="mini" @click="resetForm('userRegisterForm')">重 置</el-button>
+          <el-button type="primary" size="mini" @click="submitRegisterForm('userRegisterForm')">注 册</el-button>
         </div>
-      </el-form>
-      <el-dialog title="第三方登录" :visible.sync="showDialog">
-        <!--      can not be simulated on local, so please combine you own business simulation! ! !-->
-        不能在本地模拟，因此请结合您自己的业务模拟！！！
-        <br>
-        <br>
-        <br>
-        <social-sign />
       </el-dialog>
     </div>
   </div>
@@ -102,6 +140,7 @@
 import { validUsername } from '@/utils/validate'
 import SocialSignin from './components/SocialSignin'
 import axios from 'axios'
+import { addUser, registerUser } from '@/api/user'
 
 export default {
   name: 'Login',
@@ -122,6 +161,16 @@ export default {
       }
     }
     return {
+      dialogRegisterFormVisible: false,
+
+      // 注册用户用的表单
+      registerForm: {
+        id: null,
+        loginName: '',
+        loginPwd: '',
+        createTime: null
+      },
+
       imgSrc: require('../../assets/images/bg03.jpg'),
       loginForm: {
         username: '',
@@ -135,6 +184,20 @@ export default {
           { min: 3, max: 16, message: '长度在 3 到 16 个字符', trigger: 'blur' }
         ],
         password: [
+          { required: true, message: '请输入密码', trigger: 'blur' },
+          {
+            pattern: /^(?=.*[a-zA-Z])(?=.*[0-9])[A-Za-z0-9]{6,18}$/,
+            message: '密码必须由字母、数字组成，区分大小写，长度为6-18位',
+            trigger: 'blur'
+          }
+        ]
+      },
+      userRegisterRules: {
+        loginName: [
+          { required: true, message: '请输入登录名', trigger: 'blur' },
+          { min: 3, max: 16, message: '长度在 3 到 16 个字符', trigger: 'blur' }
+        ],
+        loginPwd: [
           { required: true, message: '请输入密码', trigger: 'blur' },
           {
             pattern: /^(?=.*[a-zA-Z])(?=.*[0-9])[A-Za-z0-9]{6,18}$/,
@@ -183,6 +246,58 @@ export default {
     // window.removeEventListener('storage', this.afterQRScan)
   },
   methods: {
+    resetForm(formName) {
+      this.$nextTick(() => {
+        if (this.$refs[formName] !== undefined) {
+          this.$refs[formName].resetFields()
+        }
+      })
+    },
+    // 处理点击注册按钮的请求
+    handleRegisterUser() {
+      // 清空之前输入的表单信息
+      this.registerForm.loginName = ''
+      this.registerForm.loginPwd = ''
+      // 清除表单校验提示信息的方法为：设置模态框的 v-model 和 设置表单的 v-if
+    },
+    // 处理提交注册用户表单请求
+    submitRegisterForm(userDataForm) {
+      this.$refs[userDataForm].validate((valid) => {
+        if (valid) {
+          // 表单校验通过
+          this.registerForm.createTime = new Date().getTime()
+          new Promise((resolve, reject) => {
+            // addUser(this.registerForm)
+            registerUser(this.registerForm)
+              .then(resp => {
+                const isSuccess = resp.data
+                isSuccess
+                  ? this.$confirm('用户: ' + this.registerForm.loginName + ' 注册成功, 是否前往登录?', '注册结果', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                  }).then(() => {
+                    this.dialogRegisterFormVisible = false
+                  }).catch(() => {
+                    this.dialogRegisterFormVisible = true
+                  })
+                  : this.$message({
+                    // 失败，给出提示信息
+                    showClose: true,
+                    message: '用户: ' + this.registerForm.loginName + ' 注册失败，用户名已存在。',
+                    type: 'warning'
+                  })
+              })
+              .catch(err => {
+                reject(err)
+              })
+          })
+        } else {
+          console.log('错误提交！！校验未通过！！')
+          return false
+        }
+      })
+    },
     // 检查大写锁定已打开
     checkCapslock(e) {
       const { key } = e

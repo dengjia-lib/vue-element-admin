@@ -7,6 +7,13 @@ export function getEquById(id) {
   })
 }
 
+export function getEquVOById(id) {
+  return request({
+    url: 'http://localhost:8080/equ/vo/' + id,
+    method: 'get'
+  })
+}
+
 export function deleteEqu(id) {
   return request({
     url: 'http://localhost:8080/equ/' + id,
@@ -16,9 +23,20 @@ export function deleteEqu(id) {
 
 export function addEqu(data) {
   return request({
-    url: 'http://localhost:8080/equ/add',
+    url: 'http://localhost:8080/equ/addVO',
     method: 'post',
     data
+  })
+}
+
+/**
+ * 参数roomId：当前实践室的id
+ * 接口nowRU：nowRoomUsers的缩写（代表指定实践室的所有用户）
+ */
+export function getNowRoomUsers(roomId) {
+  return request({
+    url: 'http://localhost:8080/equ/nowRU/' + roomId,
+    method: 'get'
   })
 }
 
@@ -113,10 +131,23 @@ export function passOneApproval(id) {
   })
 }
 
-export function startUseEquipment(id) {
+/**
+ *
+ * @param id 申请id
+ * @param itsTime 用户是否提前开始使用设备，false -- 提前开始
+ * @param startTime 用户开始使用设备的时间
+ * @param day 用户借用设备的时间（天使）
+ * @returns {AxiosPromise}
+ */
+export function startUseEquipment(id, itsTime, startTime, day) {
   return request({
     url: 'http://localhost:8080/equApproval/use/' + id,
-    method: 'get'
+    method: 'get',
+    params: {
+      itsTime: itsTime,
+      startTime: startTime,
+      day: day
+    }
   })
 }
 
@@ -179,6 +210,16 @@ export function showStoredEqu() {
 }
 
 /**
+ * 管理员查看所有用户归还且维修中的设备
+ */
+export function showRepairingEqu() {
+  return request({
+    url: 'http://localhost:8080/equApproval/repairing',
+    method: 'get'
+  })
+}
+
+/**
  * 管理员查看所有用户归还且已报废的设备
  */
 export function showScrappedEqu() {
@@ -215,10 +256,11 @@ export function storePartReturnedEqu(id, num) {
 /**
  * 设备小损，需要维修
  */
-export function maintainReturnedEqu(id) {
+export function maintainReturnedEqu(data) {
   return request({
-    url: 'http://localhost:8080/equApproval/maintain/' + id,
-    method: 'post'
+    url: 'http://localhost:8080/equApproval/maintain',
+    method: 'post',
+    data
   })
 }
 

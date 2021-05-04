@@ -6,16 +6,27 @@
 
     <div class="user-profile">
       <div class="box-center">
-        <pan-thumb :image="user.avatar" :height="'100px'" :width="'100px'" :hoverable="false">
-          <div>你好</div>
-          {{ user.role }}
-        </pan-thumb>
+        <pan-thumb :image="this.$store.getters.avatar" :height="'100px'" :width="'100px'" :hoverable="false" />
       </div>
       <div class="box-center">
+        <div class="user-change-avatar text-center">
+          <el-button type="text" @click="imagecropperShow=true">更改头像</el-button>
+        </div>
         <div class="user-name text-center">{{ user.loginName }}</div>
         <div class="user-role text-center text-muted">{{ user.role | uppercaseFirst }}</div>
       </div>
     </div>
+
+    <image-cropper
+      v-show="imagecropperShow"
+      :key="imagecropperKey"
+      :width="300"
+      :height="300"
+      url="http://localhost:8080/user/upload/avatar"
+      lang-type="zh"
+      @close="close"
+      @crop-upload-success="cropSuccess"
+    />
 
     <div class="user-bio">
       <div class="user-education user-bio-section">
@@ -58,9 +69,10 @@
 
 <script>
 import PanThumb from '@/components/PanThumb'
+import ImageCropper from '@/components/ImageCropper'
 
 export default {
-  components: { PanThumb },
+  components: { ImageCropper, PanThumb },
   props: {
     user: {
       type: Object,
@@ -72,6 +84,24 @@ export default {
           role: ''
         }
       }
+    }
+  },
+  data() {
+    return {
+      imagecropperShow: false,
+      imagecropperKey: 0
+    }
+  },
+  methods: {
+    cropSuccess(resData) {
+      // this.user.avatar = resData
+      this.imagecropperShow = false
+      this.imagecropperKey = this.imagecropperKey + 1
+      // this.image = resData.files.avatar
+      this.$store.dispatch('user/uploadAvatar', resData)
+    },
+    close() {
+      this.imagecropperShow = false
     }
   }
 }
@@ -100,6 +130,10 @@ export default {
     padding-top: 10px;
     font-weight: 400;
     font-size: 14px;
+  }
+
+  .user-change-avatar {
+
   }
 
   .box-social {

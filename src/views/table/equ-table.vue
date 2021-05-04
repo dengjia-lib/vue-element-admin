@@ -178,10 +178,10 @@
 
         <!--        <el-table-column prop="equUser" label="负责人" width="100" align="center"></el-table-column>-->
         <el-table-column prop="equState" label="设备状态" width="80" align="center" />
-        <el-table-column prop="purchaseTime" align="center" label="购置时间" width="180">
+        <el-table-column prop="storageTime" align="center" label="入库时间" width="180">
           <template slot-scope="scope">
             <i class="el-icon-time" />
-            <span> {{ scope.row.purchaseTime }}</span>
+            <span> {{ scope.row.storageTime }}</span>
           </template>
         </el-table-column>
         <el-table-column fixed="right" label="操作" align="center">
@@ -238,85 +238,98 @@
         </span>
       </el-dialog>
     </div>
-
     <!-- 添加新设备 模态框 -->
     <div>
-      <el-dialog title="添加设备" :visible.sync="dialogAddFormVisible">
-        <el-form ref="dataForm" :inline="true" :rules="rules" :model="detailForm" label-width="100px" size="mini">
-          <el-form-item label="设备编号" style="width: 100%" class="change-label-class">
-            <el-input v-model="detailForm.equCode" />
-          </el-form-item>
-          <el-form-item label="设备名">
-            <el-input v-model="detailForm.equName" />
-          </el-form-item>
-          <el-form-item label="设备类别">
-            <el-select v-model="detailForm.equCate" class="filter-item" placeholder="请选择设备类别...">
-              <el-option v-for="(item,index) in equCateInfo" :key="item" :label="item" :value="index+1" />
-            </el-select>
-          </el-form-item>
-          <el-form-item label="生产厂商">
-            <el-input v-model="detailForm.equFirm" />
-          </el-form-item>
-          <el-form-item label="设备品牌">
-            <el-input v-model="detailForm.equBrand" />
-          </el-form-item>
-          <el-form-item label="设备型号">
-            <el-input v-model="detailForm.equModel" />
-          </el-form-item>
-          <el-form-item label="设备规格">
-            <el-input v-model="detailForm.equStandard" />
-          </el-form-item>
-          <el-form-item label="设备单价">
-            <el-input v-model="detailForm.equPrice" />
-          </el-form-item>
-          <el-form-item label="库存数量">
-            <el-input v-model="detailForm.equQuantity" />
-          </el-form-item>
-          <el-form-item label="出厂日期">
-            <el-col>
-              <el-date-picker
-                v-model="detailForm.outFirmTime"
-                type="date"
-                placeholder="选择日期"
-                style="width: 100%;"
-              />
+      <el-dialog title="添加设备（注：*为必填项）" :visible.sync="dialogAddFormVisible">
+        <el-form
+          ref="equAddDataForm"
+          :inline="true"
+          :rules="equInfoRules"
+          :model="equDetailAddForm"
+          label-width="100px"
+          size="mini"
+        >
+          <!--          <div class="user-change-avatar text-center">-->
+          <!--            <el-button type="text" @click="imagecropperShow=true">上传设备图片</el-button>-->
+          <!--            <image-cropper-->
+          <!--              v-show="imagecropperShow"-->
+          <!--              :key="imagecropperKey"-->
+          <!--              :width="300"-->
+          <!--              :height="300"-->
+          <!--              url="http://localhost:8080/user/upload/avatar"-->
+          <!--              lang-type="zh"-->
+          <!--              @close="close"-->
+          <!--              @crop-upload-success="cropSuccess"-->
+          <!--            />-->
+          <!--          </div>-->
+
+          <el-row>
+            <el-col :span="10" align="center">
+              <div align="center" style="width: 60%">
+                <el-upload
+                  class="avatar-uploader"
+                  :action="fileApi"
+                  :show-file-list="false"
+                  :on-success="handleFileSuccess"
+                  :before-upload="beforeFileUpload"
+                  :headers="headers"
+                >
+                  <img v-if="imageUrl" :src="imageUrl" class="avatar">
+                  <i v-else class="el-icon-plus avatar-uploader-icon" />
+                </el-upload>
+              </div>
             </el-col>
-          </el-form-item>
-          <el-form-item label="使用年限">
-            <el-input v-model="detailForm.equLife" />
-          </el-form-item>
-          <el-form-item label="购置日期">
-            <el-col>
-              <el-date-picker
-                v-model="detailForm.purchaseTime"
-                type="date"
-                placeholder="选择日期"
-                style="width: 100%;"
-              />
+            <el-col :span="14">
+              <el-form-item label="设备编号" style="width: 100%" class="change-label-class" prop="equCode">
+                <el-input v-model="equDetailAddForm.equCode" />
+              </el-form-item>
+              <el-form-item label="设备名" prop="equName">
+                <el-input v-model="equDetailAddForm.equName" />
+              </el-form-item>
+              <el-form-item label="设备类别" prop="equCate">
+                <el-select v-model="equDetailAddForm.equCate" class="filter-item" placeholder="请选择设备类别...">
+                  <el-option
+                    v-for="(item,index) in equCateInfo"
+                    :key="item"
+                    :label="item"
+                    :value="index+1"
+                  />
+                </el-select>
+              </el-form-item>
+              <el-form-item label="负责人用户名">
+                <el-input v-model="this.$store.getters.loginName" readonly />
+              </el-form-item>
             </el-col>
+          </el-row>
+          <el-form-item label="设备单价" prop="equPrice">
+            <el-input v-model="equDetailAddForm.equPrice" />
           </el-form-item>
-          <el-form-item label="目前状态">
-            <el-select v-model="detailForm.equState" class="filter-item" placeholder="请选择设备状态...">
-              <el-option v-for="(item,index) in equStateInfo" :key="item" :label="item" :value="index+1" />
-            </el-select>
+          <el-form-item label="入库数量" prop="equQuantity">
+            <el-input v-model="equDetailAddForm.equQuantity" />
           </el-form-item>
-          <!--          <el-form-item label="存放实践室" v-permission="['SUPERADMIN']">
-                      <el-select v-model="detailForm.equRoom" class="filter-item" placeholder="请选择实践室...">
-                        <el-option v-for="(item,index) in equRoomInfo" :key="item" :label="item" :value="index+1"/>
-                      </el-select>
-                    </el-form-item>-->
           <el-form-item label="存放实践室">
             <el-input v-model="this.$store.getters.room" readonly />
+            <!--            <el-select v-model="equDetailAddForm.equRoom" class="filter-item" placeholder="请选择设备存放地" readonly>
+                          <el-option v-for="(item,index) in equRoomInfo"
+                                     :key="item"
+                                     :label="item"
+                                     :value="index+1"
+                          />
+                        </el-select>-->
           </el-form-item>
-          <el-form-item label="设备负责人">
-            <el-input v-model="this.$store.getters.realName" readonly />
+          <el-form-item label="目前状态" prop="equState">
+            <el-select v-model="equDetailAddForm.equState" class="filter-item" placeholder="请选择设备状态">
+              <el-option
+                v-for="(item,index) in equStateInfo"
+                :key="item"
+                :label="item"
+                :value="index+1"
+              />
+            </el-select>
           </el-form-item>
-          <el-form-item label="主要电器参数">
-            <el-input v-model="detailForm.equOtherParam" style="width: 400px;" />
-          </el-form-item>
-          <el-form-item label="备注">
+          <el-form-item label="备注" prop="remark">
             <el-input
-              v-model="detailForm.remark"
+              v-model="equDetailAddForm.remark"
               style="width:400px"
               :autosize="{ minRows: 2, maxRows: 3}"
               type="textarea"
@@ -325,29 +338,46 @@
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
-          <el-button @click="dialogAddFormVisible = false">返 回</el-button>
-          <el-button @click="clearDetailForm()">重 置</el-button>
+          <el-button size="mini" @click="dialogAddFormVisible = false">返 回</el-button>
+          <el-button size="mini" @click="resetForm('equAddDataForm')">重 置</el-button>
           <!--          <el-button type="primary" @click="dialogStatus==='create'?createData():updateData()">添加</el-button>-->
-          <el-button type="primary" @click="dialogAddFormVisible = false;submitAddForm()">添加</el-button>
+          <el-button size="mini" type="primary" @click="submitAddForm('equAddDataForm')">添加</el-button>
         </div>
       </el-dialog>
     </div>
     <!-- 设备详细信息 模态框 -->
     <div>
-      <el-dialog title="详细信息" :visible.sync="dialogDetailFormVisible">
+      <el-dialog title="设备详细信息" :visible.sync="dialogDetailFormVisible">
         <el-form ref="detailForm" :inline="true" :model="detailForm" label-width="100px" size="mini">
-          <el-form-item label="设备id" class="change-label-class">
-            <el-input v-model="detailForm.id" disabled readonly />
-          </el-form-item>
-          <el-form-item label="设备编号" class="change-label-class">
-            <el-input v-model="detailForm.equCode" readonly />
-          </el-form-item>
-          <el-form-item label="设备名">
-            <el-input v-model="detailForm.equName" readonly />
-          </el-form-item>
-          <el-form-item label="设备类别">
-            <el-input v-model="detailForm.equCate" readonly />
-          </el-form-item>
+          <!--          <div align="center">-->
+          <!--            <img :src="detailForm.equPicture" style="width: 20%;">-->
+          <!--          </div>-->
+          <el-row>
+            <el-col :span="10" align="center">
+              <el-form-item style="width: 60%">
+                <el-image :src="detailForm.equPicture" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="14">
+              <el-form-item label="设备id" class="change-label-class">
+                <el-input v-model="detailForm.id" disabled readonly />
+              </el-form-item>
+              <el-form-item label="设备编号" class="change-label-class">
+                <el-input v-model="detailForm.equCode" readonly />
+              </el-form-item>
+              <el-form-item label="设备名">
+                <el-input v-model="detailForm.equName" readonly />
+              </el-form-item>
+              <!--              <el-form-item label="设备类别">
+                              <el-select v-model="detailForm.equCate" class="filter-item" disabled>
+                                <el-option v-for="(item, index) in equCateInfo" :key="item" :label="item" :value="index+1"/>
+                              </el-select>
+                            </el-form-item>-->
+              <el-form-item label="设备类别">
+                <el-input v-model="detailForm.equCate" readonly />
+              </el-form-item>
+            </el-col>
+          </el-row>
           <el-form-item label="生产厂商">
             <el-input v-model="detailForm.equFirm" readonly />
           </el-form-item>
@@ -373,7 +403,7 @@
             <el-input v-model="detailForm.purchaseTime" readonly />
           </el-form-item>
           <el-form-item label="入库日期">
-            <el-input v-model="detailForm.purchaseTime" readonly />
+            <el-input v-model="detailForm.storageTime" readonly />
           </el-form-item>
           <el-form-item label="使用年限">
             <el-input v-model="detailForm.equLife" readonly />
@@ -387,7 +417,7 @@
           <el-form-item label="设备负责人">
             <el-input v-model="detailForm.equUser" readonly />
           </el-form-item>
-          <el-form-item label="主要电器参数">
+          <el-form-item v-if="false" label="主要电器参数">
             <el-input v-model="detailForm.equOtherParam" style="width: 400px;" readonly />
           </el-form-item>
           <el-form-item label="备注">
@@ -396,7 +426,7 @@
               style="width:400px"
               :autosize="{ minRows: 2, maxRows: 3}"
               type="textarea"
-              placeholder="用户备注信息..."
+              placeholder="设备备注信息..."
               readonly
             />
           </el-form-item>
@@ -410,27 +440,42 @@
     <!-- 普通用户申请使用设备 模态框 -->
     <div>
       <el-dialog title="设备申请信息表" :visible.sync="dialogApplyForEquipment">
-        <el-form ref="form" :model="applyForEquipmentForm" label-width="80px" size="mini" inline>
+        <el-form
+          ref="applyUseEquForm"
+          :model="applyForEquipmentForm"
+          label-width="80px"
+          size="mini"
+          inline
+          :rules="applyUseEquRules"
+        >
           <el-form-item label="设备名称">
             <el-input v-model="applyForEquipmentForm.equName" readonly />
           </el-form-item>
-          <el-form-item label="申请数量">
+          <el-form-item label="申请数量" prop="equQuantityChoose">
             <el-input-number
-              v-model="equNum"
+              v-model="applyForEquipmentForm.equQuantityChoose"
               :min="1"
               :max="applyForEquipmentForm.equQuantity"
               :step="1"
             />
           </el-form-item>
-          <el-form-item label="使用方向">
+          <el-form-item label="使用方向" prop="equUseCate">
             <el-select v-model="applyForEquipmentForm.equUseCate" placeholder="请选择使用方向">
               <el-option v-for="(item,index) in equUseCateInfo" :key="item" :label="item" :value="index+1" />
             </el-select>
           </el-form-item>
-          <el-form-item label="使用时间">
+          <el-form-item label="借用天数" prop="equDay">
+            <el-input-number
+              v-model="applyForEquipmentForm.equDay"
+              :min="1"
+              :max="maxDay"
+              :step="1"
+            />
+          </el-form-item>
+          <el-form-item label="使用时间" prop="equUseTime">
             <el-col :span="11">
               <el-date-picker
-                v-model="applyForEquipmentForm.equUseTime1"
+                v-model="applyForEquipmentForm.equUseTime"
                 type="date"
                 placeholder="选择日期"
                 style="width: 100%;"
@@ -439,16 +484,13 @@
             <el-col class="line" :span="2">-</el-col>
             <el-col :span="11">
               <el-time-picker
-                v-model="applyForEquipmentForm.equUseTime2"
+                v-model="applyForEquipmentForm.equUseTime"
                 placeholder="选择时间"
                 style="width: 100%;"
               />
             </el-col>
           </el-form-item>
-          <el-form-item label="借用天数">
-            <el-input-number v-model="equDay" :min="1" :max="maxDay" />
-          </el-form-item>
-          <el-form-item label="备注">
+          <el-form-item label="备注" prop="remark">
             <el-input
               v-model="applyForEquipmentForm.remark"
               type="textarea"
@@ -459,7 +501,12 @@
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button size="mini" @click="dialogApplyForEquipment = false">返 回</el-button>
-          <el-button type="primary" size="mini" @click="dialogApplyForEquipment = false;submitApplyEquForm()">提 交
+          <el-button size="mini" @click="resetForm('applyUseEquForm')">重 置</el-button>
+          <el-button
+            type="primary"
+            size="mini"
+            @click="submitApplyEquForm('applyUseEquForm')"
+          >提 交
           </el-button>
         </div>
       </el-dialog>
@@ -472,91 +519,141 @@
         direction="rtl"
         size="60%"
       >
-        <div>
-          <el-tabs v-model="activeName" type="border-card" style="left: 100px" @tab-click="handleClick()">
-            <el-tab-pane label="审核中" name="first">
-              <el-table :data="myApplyTableData" stripe>
-                <el-table-column property="userName" label="申请人" width="70" />
-                <el-table-column property="equName" label="申请设备" width="80" />
-                <el-table-column property="equQuantity" label="申请数量" width="80" />
-                <el-table-column property="approvalTime" label="申请时间" width="170" />
-                <el-table-column property="approvalStatusName" label="审核状态" width="100">
-                  <template slot-scope="{row}">
-                    <el-tag :type="row.status | statusFilter">
-                      {{ row.status }}
-                    </el-tag>
-                  </template>
-                </el-table-column>
-                <el-table-column fixed="right" label="操作" align="center">
-                  <template slot-scope="{row,$index}">
-                    <el-button
-                      type="text"
-                      size="mini"
-                      icon="el-icon-circle-check"
-                    >查看
-                    </el-button>
-                    <el-button
-                      v-if="row.status==='审核中'||row.status==='待审核'||row.status==='审核不通过'"
-                      type="text"
-                      size="mini"
-                      icon="el-icon-thumb"
-                      @click="handleCancelApplication(row)"
-                    >取消
-                    </el-button>
-                    <el-button
-                      v-if="row.status === '审核不通过'"
-                      type="text"
-                      size="mini"
-                      icon="el-icon-circle-check"
-                      @click="handleReApply(row)"
-                    >重申
-                    </el-button>
-                    <el-button
-                      v-if="row.status === '审核通过'"
-                      type="text"
-                      size="mini"
-                      icon="el-icon-circle-check"
-                      @click="handleUseEquipment(row)"
-                    >使用设备
-                    </el-button>
-                  </template>
-                </el-table-column>
-              </el-table>
-            </el-tab-pane>
-            <el-tab-pane label="使用中" name="second">
-              <el-table :data="usingEquTableTableData">
-                <el-table-column property="userName" label="申请人" width="70" />
-                <el-table-column property="equName" label="设备" width="80" />
-                <el-table-column property="equQuantity" label="数量" width="80" />
-                <el-table-column property="approvalTime" label="时间" width="170" />
-                <el-table-column property="approvalStatusName" label="设备状态" width="100">
-                  <template slot-scope="{row}">
-                    <el-tag :type="row.status | statusFilter">
-                      {{ row.status }}
-                    </el-tag>
-                  </template>
-                </el-table-column>
-                <el-table-column fixed="right" label="操作" align="center">
-                  <template slot-scope="{row,$index}">
-                    <el-button
-                      type="text"
-                      size="mini"
-                      icon="el-icon-circle-check"
-                    >查看
-                    </el-button>
-                    <el-button
-                      type="text"
-                      size="mini"
-                      icon="el-icon-circle-check"
-                      @click="handleReturnThisEquipment(row)"
-                    >归还
-                    </el-button>
-                  </template>
-                </el-table-column>
-              </el-table>
-            </el-tab-pane>
-          </el-tabs>
-        </div>
+        <el-tabs v-model="activeName" type="border-card" style="left: 100px" @tab-click="handleClick()">
+          <el-tab-pane label="审核中" name="first">
+            <el-table :data="myApplyTableData" stripe>
+              <el-table-column property="userName" label="申请人" width="70" />
+              <el-table-column property="equName" label="申请设备" width="80" />
+              <el-table-column property="equQuantity" label="申请数量" width="80" />
+              <el-table-column property="approvalTime" label="申请时间" width="170" />
+              <el-table-column property="approvalStatusName" label="审核状态" width="100">
+                <template slot-scope="{row}">
+                  <el-tag :type="row.status | statusFilter">
+                    {{ row.status }}
+                  </el-tag>
+                </template>
+              </el-table-column>
+              <el-table-column fixed="right" label="操作" align="center">
+                <template slot-scope="{row,$index}">
+                  <el-button
+                    type="text"
+                    size="mini"
+                    icon="el-icon-thumb"
+                    @click="approveUserInnerDrawer=true;handleShowOneApproval(row)"
+                  >查看
+                  </el-button>
+                  <el-button
+                    v-if="row.status==='审核中'||row.status==='待审核'||row.status==='审核不通过'"
+                    type="text"
+                    size="mini"
+                    icon="el-icon-thumb"
+                    @click="handleCancelApplication(row)"
+                  >取消
+                  </el-button>
+                  <el-button
+                    v-if="row.status === '审核不通过'"
+                    type="text"
+                    size="mini"
+                    icon="el-icon-circle-check"
+                    @click="handleReApply(row)"
+                  >重申
+                  </el-button>
+                  <el-button
+                    v-if="row.status === '审核通过'"
+                    type="text"
+                    size="mini"
+                    icon="el-icon-circle-check"
+                    @click="handleUseEquipment(row)"
+                  >使用设备
+                  </el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </el-tab-pane>
+          <el-tab-pane label="使用中" name="second">
+            <el-table :data="usingEquTableTableData">
+              <el-table-column property="userName" label="申请人" width="70" />
+              <el-table-column property="equName" label="设备" width="80" />
+              <el-table-column property="equQuantity" label="数量" width="80" />
+              <el-table-column property="approvalTime" label="时间" width="170" />
+              <el-table-column property="approvalStatusName" label="设备状态" width="100">
+                <template slot-scope="{row}">
+                  <el-tag :type="row.status | statusFilter">
+                    {{ row.status }}
+                  </el-tag>
+                </template>
+              </el-table-column>
+              <el-table-column fixed="right" label="操作" align="center">
+                <template slot-scope="{row,$index}">
+                  <el-button
+                    type="text"
+                    size="mini"
+                    icon="el-icon-thumb"
+                    @click="approveUserInnerDrawer=true;handleShowOneApproval(row)"
+                  >查看
+                  </el-button>
+                  <el-button
+                    type="text"
+                    size="mini"
+                    icon="el-icon-circle-check"
+                    @click="handleReturnThisEquipment(row)"
+                  >归还
+                  </el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </el-tab-pane>
+        </el-tabs>
+
+        <el-drawer
+          title="我的申请详情"
+          :append-to-body="true"
+          :before-close="handleBeforeCloseInner"
+          :visible.sync="approveUserInnerDrawer"
+          size="28%"
+        >
+          <el-form label-position="right" label-width="150px" :model="innerForm" style="margin-right: 30px">
+            <el-form-item label="申请人">
+              <el-input v-model="innerForm.userName" readonly />
+            </el-form-item>
+            <el-form-item label="申请设备">
+              <el-input v-model="innerForm.equName" readonly />
+            </el-form-item>
+            <el-form-item label="申请数量">
+              <el-input v-model="innerForm.equQuantity" readonly />
+            </el-form-item>
+            <el-form-item label="使用方向">
+              <el-input v-model="innerForm.equUseCate" readonly />
+            </el-form-item>
+            <el-form-item label="发起申请时间">
+              <el-input v-model="innerForm.approvalTime" readonly />
+            </el-form-item>
+            <el-form-item v-if="!inUse" label="预计开始使用时间">
+              <el-input v-model="innerForm.equUseTime" readonly />
+            </el-form-item>
+            <el-form-item v-if="inUse" label="开始使用时间">
+              <el-input v-model="innerForm.equUseTime" readonly />
+            </el-form-item>
+            <el-form-item v-if="inUse" label="最迟归还时间">
+              <el-input v-model="innerForm.equReturnTime" readonly />
+            </el-form-item>
+            <el-form-item label="借用设备天数">
+              <el-input v-model="innerForm.equDay" readonly />
+            </el-form-item>
+            <el-form-item label="申请备注">
+              <el-input
+                v-model="innerForm.remark"
+                :autosize="{ minRows: 2, maxRows: 3}"
+                type="textarea"
+                readonly
+              />
+            </el-form-item>
+            <el-form-item label="当前审核状态">
+              <el-input v-model="innerForm.status" readonly />
+            </el-form-item>
+          </el-form>
+        </el-drawer>
+
       </el-drawer>
     </div>
     <!-- 管理员的审核[抽屉]表格 -->
@@ -588,7 +685,7 @@
                     type="text"
                     size="mini"
                     icon="el-icon-thumb"
-                    @click="approveInnerDrawer=true;handleShowOneApproval(row)"
+                    @click="approveAdminInnerDrawer=true;handleShowOneApproval(row)"
                   >查看
                   </el-button>
                   <el-button
@@ -631,14 +728,14 @@
                     type="text"
                     size="mini"
                     icon="el-icon-thumb"
-                    @click="approveInnerDrawer=true;handleShowOneApproval(row)"
+                    @click="approveAdminInnerDrawer=true;handleShowOneApproval(row)"
                   >查看
                   </el-button>
                   <el-button
                     v-if="row.status === '设备已归还'||row.status === '设备维修中'"
                     type="text"
                     size="mini"
-                    icon="el-icon-circle-check"
+                    icon="el-icon-finished"
                     @click="dialogStoreThisEquipmentVisible = true;handleStoreThisEquipment(row)"
                   >入库
                   </el-button>
@@ -646,7 +743,7 @@
                     v-if="row.status === '设备已归还'"
                     type="text"
                     size="mini"
-                    icon="el-icon-circle-check"
+                    icon="el-icon-setting"
                     @click="dialogRepairThisEquipmentVisible = true;handleRepairThisEquipment(row)"
                   >维修
                   </el-button>
@@ -654,7 +751,7 @@
                     v-if="row.status === '设备已归还'||row.status === '设备维修中'"
                     type="text"
                     size="mini"
-                    icon="el-icon-circle-close"
+                    icon="el-icon-delete"
                     @click="dialogScrapThisEquipmentVisible = true;handleScrapThisEquipment(row)"
                   >报废
                   </el-button>
@@ -673,7 +770,7 @@
           <el-tab-pane label="设备已入库" name="third">
             <el-divider content-position="left"><i class="el-icon-success">《已入库设备名单》</i></el-divider>
             <el-table :data="storedEquTableTableData">
-              <el-table-column property="userName" label="入库人" align="center" width="60" />
+              <el-table-column property="storeman" label="入库人" align="center" width="60" />
               <el-table-column property="equName" label="设备" align="center" width="60" />
               <el-table-column property="equQuantity" label="数量" align="center" width="60" />
               <el-table-column property="equReturnTime" label="入库时间" align="center" width="140" />
@@ -690,7 +787,7 @@
                     type="text"
                     size="mini"
                     icon="el-icon-thumb"
-                    @click="approveInnerDrawer=true;handleShowOneApproval(row)"
+                    @click="approveAdminInnerDrawer=true;handleShowOneApproval(row)"
                   >查看
                   </el-button>
                   <el-button
@@ -708,11 +805,12 @@
           <el-tab-pane label="设备维修中" name="fourth">
             <el-divider content-position="left"><i class="el-icon-loading" />&emsp;<span>《维修中设备表》</span></el-divider>
             <el-table :data="maintainEquTableTableData">
-              <el-table-column property="userName" label="送修人" align="center" width="70" />
-              <el-table-column property="equName" label="维修设备" align="center" width="70" />
-              <el-table-column property="equQuantity" label="维修数量" align="center" width="70" />
-              <el-table-column property="equMaintainTime" label="送修时间" align="center" width="150" />
-              <el-table-column label="设备状态" align="center" width="90">
+              <el-table-column property="repairman" label="送修人" align="center" width="60" />
+              <el-table-column property="userName" label="借用人" align="center" width="60" />
+              <el-table-column property="equName" label="设备" align="center" width="60" />
+              <el-table-column property="equQuantity" label="数量" align="center" width="60" />
+              <el-table-column property="equMaintainTime" label="送修时间" align="center" width="140" />
+              <el-table-column label="设备状态" align="center" width="80">
                 <template slot-scope="{row}">
                   <el-tag :type="row.status | statusFilter">
                     {{ row.status }}
@@ -725,11 +823,10 @@
                     type="text"
                     size="mini"
                     icon="el-icon-thumb"
-                    @click="approveInnerDrawer=true;handleShowOneApproval(row)"
+                    @click="approveAdminInnerDrawer=true;handleShowOneApproval(row)"
                   >查看
                   </el-button>
                   <el-button
-                    v-if="row.status === '维修已完成'"
                     type="text"
                     size="mini"
                     icon="el-icon-circle-check"
@@ -737,7 +834,6 @@
                   >入库
                   </el-button>
                   <el-button
-                    v-if="row.status === '维修已完成'"
                     type="text"
                     size="mini"
                     icon="el-icon-circle-close"
@@ -759,7 +855,7 @@
           <el-tab-pane label="设备已报废" name="fifth">
             <el-divider content-position="left"><i class="el-icon-delete-solid">《已报废设备表》</i></el-divider>
             <el-table :data="scrapEquTableTableData">
-              <el-table-column property="userName" label="操作人" align="center" width="60" />
+              <el-table-column property="operator" label="操作员" align="center" width="60" />
               <el-table-column property="equName" label="设备" align="center" width="60" />
               <el-table-column property="equQuantity" label="数量" align="center" width="60" />
               <el-table-column property="equReturnTime" label="报废时间" align="center" width="140" />
@@ -776,7 +872,7 @@
                     type="text"
                     size="mini"
                     icon="el-icon-thumb"
-                    @click="approveInnerDrawer=true;handleShowOneApproval(row)"
+                    @click="approveAdminInnerDrawer=true;handleShowOneApproval(row)"
                   >查看
                   </el-button>
                   <el-button
@@ -793,20 +889,35 @@
           </el-tab-pane>
         </el-tabs>
         <el-drawer
-          title="用户的申请信息"
+          :title="applicationAndReturnTitle"
           :append-to-body="true"
           :before-close="handleBeforeCloseInner"
-          :visible.sync="approveInnerDrawer"
-          size="25%"
+          :visible.sync="approveAdminInnerDrawer"
+          size="28%"
         >
-          <el-form label-position="right" label-width="120px" :model="innerForm" style="margin-right: 30px">
-            <el-form-item label="申请人">
+          <el-form label-position="right" label-width="150px" :model="innerForm" style="margin-right: 30px">
+            <el-form-item v-if="inReturn" label="设备仓库管理员">
+              <el-input v-model="innerForm.equManager" readonly />
+            </el-form-item>
+            <el-form-item v-if="inStore" label="操作入库管理员">
+              <el-input v-model="innerForm.storeman" readonly />
+            </el-form-item>
+            <el-form-item v-if="inMaintain" label="操作维修管理员">
+              <el-input v-model="innerForm.repairman" readonly />
+            </el-form-item>
+            <el-form-item v-if="inScrap" label="操作报废管理员">
+              <el-input v-model="innerForm.operator" readonly />
+            </el-form-item>
+            <el-form-item :label="inApply?'申请人':inReturn?'归还人':'借用人'">
               <el-input v-model="innerForm.userName" readonly />
             </el-form-item>
-            <el-form-item label="申请设备">
+            <el-form-item :label="inApply?'申请设备':inReturn?'归还设备':'借用设备'">
               <el-input v-model="innerForm.equName" readonly />
             </el-form-item>
-            <el-form-item label="申请数量">
+            <el-form-item
+              :label="inApply?'申请数量':inReturn?'归还数量':inStore?'入库数量'
+                :inMaintain?'维修数量':inScrap?'报废数量':'借用数量'"
+            >
               <el-input v-model="innerForm.equQuantity" readonly />
             </el-form-item>
             <el-form-item label="使用方向">
@@ -815,13 +926,22 @@
             <el-form-item label="发起申请时间">
               <el-input v-model="innerForm.approvalTime" readonly />
             </el-form-item>
-            <el-form-item label="申请使用时间">
+            <el-form-item v-if="inApply" label="预计开始使用时间">
               <el-input v-model="innerForm.equUseTime" readonly />
             </el-form-item>
-            <el-form-item label="借用设备天数">
+            <el-form-item v-if="!inApply" label="开始使用时间">
+              <el-input v-model="innerForm.equUseTime" readonly />
+            </el-form-item>
+            <el-form-item v-if="!inApply" label="用户归还时间">
+              <el-input v-model="innerForm.equReturnTime" readonly />
+            </el-form-item>
+            <el-form-item v-if="inApply" label="申请借用设备天数">
               <el-input v-model="innerForm.equDay" readonly />
             </el-form-item>
-            <el-form-item label="申请备注">
+            <!--            <el-form-item label="实际借用设备天数">
+                          <el-input v-model="actualDays" readonly/>
+                        </el-form-item>-->
+            <el-form-item v-if="inApply" label="申请备注">
               <el-input
                 v-model="innerForm.remark"
                 :autosize="{ minRows: 2, maxRows: 3}"
@@ -836,19 +956,45 @@
           <div style="float: right;margin-right: 30px">
             <el-button
               v-if="innerForm.status === '待审核'||innerForm.status === '审核中'"
+              type="success"
+              size="mini"
+              icon="el-icon-circle-check"
+              @click="handlePassOneApproval(innerForm)"
+            >通过
+            </el-button>
+            <el-button
+              v-if="innerForm.status === '待审核'||innerForm.status === '审核中'"
               type="warning"
               size="mini"
               icon="el-icon-circle-close"
               @click="handleRejectOneApproval(innerForm)"
             >驳回
             </el-button>
+          </div>
+          <div style="float: right;margin-right: 30px">
             <el-button
-              v-if="innerForm.status === '待审核'||innerForm.status === '审核中'"
-              type="success"
+              v-if="inReturn"
+              type="info"
               size="mini"
-              icon="el-icon-circle-check"
-              @click="handlePassOneApproval(innerForm)"
-            >通过
+              icon="el-icon-finished"
+              @click="dialogStoreThisEquipmentVisible = true;handleStoreThisEquipment(innerForm)"
+            >入库
+            </el-button>
+            <el-button
+              v-if="inReturn"
+              type="warning"
+              size="mini"
+              icon="el-icon-setting"
+              @click="dialogRepairThisEquipmentVisible = true;handleRepairThisEquipment(innerForm)"
+            >维修
+            </el-button>
+            <el-button
+              v-if="inReturn"
+              type="danger"
+              size="mini"
+              icon="el-icon-delete"
+              @click="dialogScrapThisEquipmentVisible = true;handleScrapThisEquipment(innerForm)"
+            >报废
             </el-button>
           </div>
         </el-drawer>
@@ -917,106 +1063,172 @@
     </div>
     <!-- 编辑设备信息 模态框 -->
     <div>
-      <el-dialog title="编辑设备" :visible.sync="dialogModifyFormVisible">
-        <el-form ref="dataForm" :inline="true" :model="detailForm" label-width="100px" size="mini">
-          <el-form-item label="设备id" class="change-label-class">
-            <el-input v-model="detailForm.id" disabled readonly />
-          </el-form-item>
-          <el-form-item label="设备编号" class="change-label-class">
-            <el-input v-model="detailForm.equCode" />
-          </el-form-item>
-          <el-form-item label="设备名">
-            <el-input v-model="detailForm.equName" />
-          </el-form-item>
-          <el-form-item label="设备类别">
-            <el-select v-model="detailForm.equCate" class="filter-item" placeholder="请选择设备类别...">
-              <el-option v-for="(item,index) in equCateInfo" :key="item" :label="item" :value="index+1" />
-            </el-select>
-          </el-form-item>
-          <el-form-item label="生产厂商">
+      <el-dialog title="编辑设备详细信息（注：*为必填项）" :visible.sync="dialogModifyFormVisible" :before-close="handleQuitModifyEqu">
+        <el-form
+          ref="dataForm"
+          :inline="true"
+          :model="detailForm"
+          :rules="equInfoRules"
+          label-width="100px"
+          size="mini"
+        >
+          <el-row>
+            <el-col :span="10" align="center">
+              <div align="center" style="width: 60%">
+                <el-upload
+                  class="avatar-uploader"
+                  :action="fileApi"
+                  :show-file-list="false"
+                  :on-success="handleFileSuccess"
+                  :before-upload="beforeFileUpload"
+                  :headers="headers"
+                >
+                  <img v-if="imageUrl" :src="imageUrl" class="avatar">
+                  <i v-else class="el-icon-plus avatar-uploader-icon" />
+                </el-upload>
+              </div>
+            </el-col>
+            <el-col :span="14">
+              <el-form-item label="设备编号" prop="equCode" class="change-label-class">
+                <el-input v-model="detailForm.equCode" />
+              </el-form-item>
+              <el-form-item label="设备名" prop="equName">
+                <el-input v-model="detailForm.equName" />
+              </el-form-item>
+              <el-form-item label="设备类别" prop="equCate">
+                <el-select
+                  v-model="detailForm.equCate"
+                  class="filter-item"
+                  filterable
+                  placeholder="请选择设备类别..."
+                  clearable
+                >
+                  <el-option v-for="(item,index) in equCateInfo" :key="item" :label="item" :value="index+1" />
+                </el-select>
+              </el-form-item>
+              <el-form-item label="存放实践室" prop="equRoom">
+                <el-select
+                  v-model="detailForm.equRoom"
+                  class="filter-item"
+                  filterable
+                  placeholder="请选择实践室..."
+                  @change="changeEquRoom"
+                >
+                  <el-option v-for="(item,index) in equRoomInfo" :key="item" :label="item" :value="index+1" />
+                </el-select>
+              </el-form-item>
+              <el-form-item label="设备负责人" prop="equUser">
+                <el-select
+                  v-model="detailForm.equUser"
+                  class="filter-item"
+                  filterable
+                  clearable
+                  placeholder="请指定设备负责人..."
+                >
+                  <el-option
+                    v-for="item in getRoomUser"
+                    :key="item.loginName"
+                    :label="item.loginName"
+                    :value="item.id"
+                  />
+                </el-select>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-form-item label="生产厂商" prop="equFirm">
             <el-input v-model="detailForm.equFirm" />
           </el-form-item>
-          <el-form-item label="设备品牌">
+          <el-form-item label="设备品牌" prop="equBrand">
             <el-input v-model="detailForm.equBrand" />
           </el-form-item>
-          <el-form-item label="设备型号">
+          <el-form-item label="设备型号" prop="equModel">
             <el-input v-model="detailForm.equModel" />
           </el-form-item>
-          <el-form-item label="设备规格">
+          <el-form-item label="设备规格" prop="equStandard">
             <el-input v-model="detailForm.equStandard" />
           </el-form-item>
-          <el-form-item label="设备单价">
+          <el-form-item label="设备单价" prop="equPrice">
             <el-input v-model="detailForm.equPrice" />
           </el-form-item>
-          <el-form-item label="库存数量">
+          <el-form-item label="库存数量" prop="equQuantity">
             <el-input v-model="detailForm.equQuantity" />
           </el-form-item>
-          <el-form-item label="出厂日期">
-            <el-input v-model="detailForm.outFirmTime" readonly disabled />
-          </el-form-item>
-          <el-form-item label="购置日期">
-            <el-input v-model="detailForm.purchaseTime" readonly disabled />
-          </el-form-item>
-          <el-form-item label="入库日期">
-            <el-input v-model="detailForm.purchaseTime" readonly disabled />
-          </el-form-item>
-          <el-form-item label="使用年限">
+          <el-form-item label="使用年限" prop="equLife">
             <el-input v-model="detailForm.equLife" />
           </el-form-item>
-          <el-form-item label="目前状态">
+          <el-form-item label="目前状态" prop="equState">
             <el-select v-model="detailForm.equState" class="filter-item" placeholder="请选择设备状态...">
               <el-option v-for="(item,index) in equStateInfo" :key="item" :label="item" :value="index+1" />
             </el-select>
           </el-form-item>
-          <el-form-item label="存放实践室">
-            <el-select v-model="detailForm.equRoom" class="filter-item" placeholder="请选择实践室...">
-              <el-option v-for="(item,index) in equRoomInfo" :key="item" :label="item" :value="index+1" />
-            </el-select>
+          <el-form-item label="出厂日期" prop="outFirmTime">
+            <el-col :span="11">
+              <el-date-picker v-model="detailForm.outFirmTime" type="date" placeholder="选择设备出厂日期" style="width: 100%;" />
+            </el-col>
+            <el-col class="line" :span="2">-</el-col>
+            <el-col :span="11">
+              <el-time-picker v-model="detailForm.outFirmTime" placeholder="选择设备出厂时间" style="width: 100%;" />
+            </el-col>
           </el-form-item>
-          <el-form-item label="设备负责人">
-            <el-select v-model="detailForm.equUser" class="filter-item" placeholder="请选择设备状态...">
-              <el-option v-for="(item,index) in equUserInfo" :key="item" :label="item" :value="index+1" />
-            </el-select>
+          <el-form-item label="购置日期" prop="purchaseTime">
+            <el-col :span="11">
+              <el-date-picker
+                v-model="detailForm.purchaseTime"
+                type="date"
+                placeholder="选择设备购置日期"
+                style="width: 100%;"
+              />
+            </el-col>
+            <el-col class="line" :span="2">-</el-col>
+            <el-col :span="11">
+              <el-time-picker v-model="detailForm.purchaseTime" placeholder="选择设备购置时间" style="width: 100%;" />
+            </el-col>
           </el-form-item>
-          <el-form-item label="主要电器参数">
+          <!--          <el-form-item label="出厂日期" prop="outFirmTime">
+                      <el-input v-model="detailForm.outFirmTime"/>
+                    </el-form-item>
+                    <el-form-item label="购置日期" prop="purchaseTime">
+                      <el-input v-model="detailForm.purchaseTime"/>
+                    </el-form-item>-->
+          <el-form-item v-if="false" label="入库日期">
+            <el-input v-model="detailForm.purchaseTime" readonly disabled />
+          </el-form-item>
+          <el-form-item v-if="false" label="主要电器参数" prop="equOtherParam">
             <el-input v-model="detailForm.equOtherParam" style="width: 400px;" />
           </el-form-item>
-          <el-form-item label="备注">
+          <el-form-item label="备注" prop="remark">
             <el-input
               v-model="detailForm.remark"
               style="width:400px"
               :autosize="{ minRows: 2, maxRows: 3}"
               type="textarea"
-              placeholder="用户备注信息..."
+              placeholder="设备备注信息..."
             />
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button size="mini" @click="dialogModifyFormVisible = false">取 消</el-button>
-          <el-button size="mini" @click="clearDetailForm">清 空</el-button>
-          <el-button
-            type="primary"
-            size="mini"
-            @click="dialogModifyFormVisible = false;submitModifyForm()"
-          >
-            修 改
-          </el-button>
+          <el-button size="mini" @click="resetForm('dataForm')">重 置</el-button>
+          <el-button type="primary" size="mini" @click="submitModifyForm('dataForm')">修 改</el-button>
         </div>
       </el-dialog>
     </div>
     <!-- 设备使用完毕入库 模态框 -->
-    <el-dialog title="入库用户归还的设备" :visible.sync="dialogStoreThisEquipmentVisible">
-      <el-form :model="storageForm">
+    <el-dialog title="用户归还设备入库" :visible.sync="dialogStoreThisEquipmentVisible">
+      <el-form
+        ref="storageReturnEquForm"
+        :model="storageForm"
+        :rules="storageReturnEquRules"
+      >
         <el-form-item label="入库设备名称" :label-width="storageFormLabelWidth">
-          <el-input v-model="storageForm.equName" autocomplete="off" />
+          <el-input v-model="storageForm.equName" autocomplete="off" readonly />
         </el-form-item>
 
-        <el-form-item label="入库数量" :label-width="storageFormLabelWidth">
+        <el-form-item label="入库数量" :label-width="storageFormLabelWidth" prop="storageQuantity">
           <el-input-number
             v-model="storageForm.storageQuantity"
             :min="1"
             :max="storageForm.returnQuantity"
-            :step="1"
           />
         </el-form-item>
       </el-form>
@@ -1024,15 +1236,21 @@
         <el-button @click="dialogStoreThisEquipmentVisible = false">取 消</el-button>
         <el-button
           type="success"
-          @click="dialogStoreThisEquipmentVisible = false;submitStoreThisEquipment()"
+          @click="submitStoreThisEquipment('storageReturnEquForm')"
         >入 库
         </el-button>
       </div>
     </el-dialog>
     <!-- 设备使用完毕维修 模态框 -->
     <div>
-      <el-dialog title="设备故障报修表" :visible.sync="dialogRepairThisEquipmentVisible">
-        <el-form ref="repairForm" :model="repairForm" label-width="100px" size="mini">
+      <el-dialog title="用户归还设备故障报修" :visible.sync="dialogRepairThisEquipmentVisible">
+        <el-form
+          ref="repairReturnEquForm"
+          :model="repairForm"
+          :rules="repairReturnEquRules"
+          label-width="120px"
+          size="mini"
+        >
           <el-form-item label="填表日期">
             <el-col :span="11">
               <el-date-picker
@@ -1043,8 +1261,17 @@
                 readonly
               />
             </el-col>
+            <el-col class="line" :span="2">-</el-col>
+            <el-col :span="11">
+              <el-time-picker
+                v-model="repairForm.approvalTime"
+                placeholder="选择时间"
+                readonly
+                style="width: 100%;"
+              />
+            </el-col>
           </el-form-item>
-          <el-form-item label="故障发生日期">
+          <el-form-item label="故障发生日期" prop="equDowntime">
             <el-col :span="11">
               <el-date-picker
                 v-model="repairForm.equDowntime"
@@ -1053,11 +1280,19 @@
                 style="width: 100%;"
               />
             </el-col>
+            <el-col class="line" :span="2">-</el-col>
+            <el-col :span="11">
+              <el-time-picker
+                v-model="repairForm.equDowntime"
+                placeholder="选择时间"
+                style="width: 100%;"
+              />
+            </el-col>
           </el-form-item>
           <el-form-item label="故障设备名称">
             <el-input v-model="repairForm.equName" readonly />
           </el-form-item>
-          <el-form-item label="报修数量">
+          <el-form-item label="报修数量" prop="maintainQuantity">
             <el-input-number
               v-model="repairForm.maintainQuantity"
               :min="1"
@@ -1066,10 +1301,9 @@
             />
           </el-form-item>
           <el-form-item label="设备负责人">
-            <el-input v-model="repairForm.userName" readonly />
+            <el-input v-model="repairForm.equManager" readonly />
           </el-form-item>
-
-          <el-form-item label="故障说明">
+          <el-form-item label="故障说明" prop="remark">
             <el-input
               v-model="repairForm.remark"
               style="width:400px"
@@ -1078,15 +1312,13 @@
               placeholder="简单说明故障设备的情况..."
             />
           </el-form-item>
-
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button size="mini" @click="dialogRepairThisEquipmentVisible = false">取 消</el-button>
-          <el-button size="mini" type="primary" plain @click="">清 空</el-button>
           <el-button
             type="warning"
             size="mini"
-            @click="dialogRepairThisEquipmentVisible = false;submitRepairThisEquipment()"
+            @click="submitRepairThisEquipment('repairReturnEquForm')"
           >
             维 修
           </el-button>
@@ -1134,13 +1366,16 @@
           </div>
         </el-dialog>-->
     <!-- 设备使用完毕报废 模态框 -->
-    <el-dialog title="报废用户归还的设备" :visible.sync="dialogScrapThisEquipmentVisible">
-      <el-form :model="scrapForm">
+    <el-dialog title="用户归还设备报废" :visible.sync="dialogScrapThisEquipmentVisible">
+      <el-form
+        ref="scrapReturnEquForm"
+        :model="scrapForm"
+        :rules="scrapReturnEquRules"
+      >
         <el-form-item label="报废设备名称" :label-width="storageFormLabelWidth">
-          <el-input v-model="scrapForm.equName" autocomplete="off" />
+          <el-input v-model="scrapForm.equName" autocomplete="off" readonly />
         </el-form-item>
-
-        <el-form-item label="报废数量" :label-width="storageFormLabelWidth">
+        <el-form-item label="报废数量" :label-width="storageFormLabelWidth" prop="scrapQuantity">
           <el-input-number
             v-model="scrapForm.scrapQuantity"
             :min="1"
@@ -1153,7 +1388,7 @@
         <el-button @click="dialogScrapThisEquipmentVisible = false">取 消</el-button>
         <el-button
           type="danger"
-          @click="dialogScrapThisEquipmentVisible = false;submitScrapThisEquipment()"
+          @click="submitScrapThisEquipment('scrapReturnEquForm')"
         >报 废
         </el-button>
       </div>
@@ -1173,9 +1408,11 @@ import {
   applyInfoForUseEquipment,
   deleteEqu,
   getEquById,
+  getEquVOById,
   getEquCate,
   getEquState,
   getEquUseCate,
+  getNowRoomUsers,
   modifyEqu,
   showMyApplyRecords,
   showMyApprovalRecords,
@@ -1189,6 +1426,7 @@ import {
   returnThisEquipment,
   showReturnedEqu,
   showStoredEqu,
+  showRepairingEqu,
   showScrappedEqu,
   showUsingEqu,
   storeReturnedEqu,
@@ -1198,7 +1436,7 @@ import {
   scrapPartReturnedEqu,
   recordALog
 } from '@/api/equipment'
-import { getAllUsers, getUserByLoginName } from '@/api/user'
+import { addUser, getAllUsers, getUserByLoginName, modifyUser } from '@/api/user'
 import permission from '@/directive/permission'
 
 const calendarTypeOptions = [
@@ -1244,6 +1482,11 @@ export default {
   },
   data() {
     return {
+      headers: {
+        token: localStorage.getItem('user_token')
+      },
+      fileApi: 'http://localhost:8080/equ/upload/file',
+      imageUrl: '',
       currentRoom: this.$store.getters.room,
       // 默认 详细信息、修改模态框 表单不可见（通过点击按钮方可显示）
       dialogDetailFormVisible: false,
@@ -1261,14 +1504,37 @@ export default {
       // 详细的设备表单信息
       detailForm: {
         id: null,
-        equCode: null,
-        equName: null,
+        equCode: '',
+        equName: '',
         equCate: null,
-        equFirm: null,
-        equModel: null,
-        equStandard: null,
-        equBrand: null,
-        equOtherParam: null,
+        equFirm: '',
+        equModel: '',
+        equStandard: '',
+        equBrand: '',
+        equOtherParam: '',
+        equPrice: null,
+        equQuantity: null,
+        outFirmTime: undefined,
+        purchaseTime: undefined,
+        storageTime: undefined,
+        equLife: null,
+        equRoom: null,
+        equUser: null,
+        equState: null,
+        equPicture: '',
+        remark: ''
+      },
+      // 详细的设备表单信息，用于添加表单
+      equDetailAddForm: {
+        id: null,
+        equCode: '',
+        equName: '',
+        equCate: null,
+        equFirm: '',
+        equModel: '',
+        equStandard: '',
+        equBrand: '',
+        equOtherParam: '',
         equPrice: null,
         equQuantity: null,
         outFirmTime: null,
@@ -1278,25 +1544,26 @@ export default {
         equRoom: null,
         equUser: null,
         equState: null,
-        remark: null
+        equPicture: '',
+        remark: ''
       },
       // 普通用户申请使用设备的信息（设备有库存且状态为可借用方能申请）
       applyForEquipmentForm: {
         id: null,
-        equName: null,
-        equQuantity: 1,
+        equName: '',
+        equQuantity: null,
+        equQuantityChoose: 1,
         equUseCate: null,
-        equUseTime1: null,
-        equUseTime2: null,
-        equDay: null,
-        remark: null
+        equUseTime: null,
+        equDay: 1,
+        remark: ''
       },
       // 设备入库表单
       storageForm: {
         id: '',
         userName: '',
         equName: '',
-        storageQuantity: 1,
+        storageQuantity: undefined,
         returnQuantity: null
       },
       // 设备报修表单
@@ -1330,7 +1597,11 @@ export default {
 
       myApplyTable: false,
       myApproveTable: false,
-      approveInnerDrawer: false,
+
+      // 普通用户查看自己的申请信息详情
+      approveUserInnerDrawer: false,
+      // 管理员查看用户的申请信息详情
+      approveAdminInnerDrawer: false,
 
       innerForm: {
         id: '',
@@ -1340,11 +1611,18 @@ export default {
         equUseCate: '',
         approvalTime: '',
         equUseTime: '',
+
         equReturnTime: '',
         equDay: '',
         remark: '',
         status: ''
       },
+      inUse: false,
+      inApply: false,
+      inReturn: false,
+      inStore: false,
+      inMaintain: false,
+      inScrap: false,
 
       activeName: 'first',
 
@@ -1397,6 +1675,9 @@ export default {
       equRoomInfo: [],
       equUserInfo: [],
 
+      nowRoomId: 0,
+      nowRoomUsers: [],
+
       /* 有关分页导航条的信息 */
       isPageSinglePage: true, // 查询的所有数据只有一页？true：隐藏导航条；false：展示导航条。
       total: null, // 总共的记录条数
@@ -1441,12 +1722,111 @@ export default {
       },
       dialogPvVisible: false,
       pvData: [],
-      rules: {
-        type: [{ required: true, message: 'type is required', trigger: 'change' }],
-        timestamp: [{ type: 'date', required: true, message: 'timestamp is required', trigger: 'change' }],
-        title: [{ required: true, message: 'title is required', trigger: 'blur' }]
+      applyUseEquRules: {
+        equName: [{ required: true, message: '请输入借用设备名称', trigger: 'blur' }],
+        equQuantityChoose: [{ required: true, message: '请指定借用设备数量', trigger: 'change' }],
+        equUseCate: [{ required: true, message: '请选择借用设备的使用方向', trigger: 'change' }],
+        equDay: [{ required: true, message: '请指定借用设备天数', trigger: 'change' }],
+        equUseTime: [{ required: true, message: '请选择借用设备的使用时间', trigger: 'blur' }],
+        remark: [{ required: false }]
+      },
+      storageReturnEquRules: {
+        equName: [{ required: true, message: '请输入入库设备名称', trigger: 'blur' }],
+        storageQuantity: [{ required: true, message: '请指定入库设备数量', trigger: 'change' }]
+      },
+      scrapReturnEquRules: {
+        equName: [{ required: true, message: '请输入报废设备名称', trigger: 'blur' }],
+        scrapQuantity: [{ required: true, message: '请指定报废设备数量', trigger: 'change' }]
+      },
+      repairReturnEquRules: {
+        approvalTime: [{ required: true, message: '请选择填表时间', trigger: 'change' }],
+        equDowntime: [{ required: true, message: '请选择设备的故障时间', trigger: 'blur' }],
+        equName: [{ required: true, message: '请输入报废设备名称', trigger: 'blur' }],
+        maintainQuantity: [{ required: true, message: '请指定维修设备数量', trigger: 'change' }],
+        userName: [{ required: true, message: '请输入设备负责人', trigger: 'blur' }],
+        remark: [{ required: false }]
+      },
+      equInfoRules: {
+        equCode: [
+          { required: true, message: '请输入设备编号', trigger: 'blur' }
+        ],
+        equName: [
+          { required: true, message: '请输入设备名', trigger: 'blur' },
+          { min: 2, max: 16, message: '长度在 2 到 16 个字符', trigger: 'blur' }
+        ],
+        /* userRole: [{ validator: validateUserRole, required: true, message: '请选择用户角色', trigger: 'blur' }],*/
+        equCate: [{ required: true, message: '设备类别不可为空', trigger: 'blur' }],
+        equRoom: [{ required: true, message: '设备存放地不可为空', trigger: 'blur' }],
+        equUser: [{ required: true, message: '设备负责人不可为空', trigger: 'blur' }],
+        equFirm: [{ required: false }],
+        equBrand: [{ required: false }],
+        equModel: [{ required: false }],
+        equStandard: [{ required: false }],
+        equPrice: [{ required: true, message: '请输入设备单价', trigger: 'blur' }],
+        equQuantity: [{ required: true, message: '请输入设备数量', trigger: 'blur' }],
+        equLife: [{ required: false }],
+        equState: [{ required: true, message: '请选择设备设备目前状态', trigger: 'change' }],
+        outFirmTime: [{ required: false }],
+        purchaseTime: [{ required: false }],
+        /* equRoom: [{ required: true, message: '设备存放地不可为空', trigger: 'change' }]*/
+        equOtherParam: [{ required: false }],
+        remark: [{ required: false }]
       },
       downloadLoading: false
+    }
+  },
+  computed: {
+    /* getRoomUser() {
+      // 获取当前实践室的管理员
+      // this.changeEquRoom(this.nowRoomId)
+      // console.log('切换实践室，打印当前的实践室的用户。')
+      // console.log(this.nowRoomUsers)
+
+      console.log('看看更换实践室 然后管理员是否有变化')
+      console.log(this.nowRoomUsers)
+
+      return this.nowRoomUsers
+    },*/
+    getRoomUser: {
+      cache: false,
+      // getter
+      get: function() {
+        return this.nowRoomUsers
+      },
+      // setter
+      set: function(newValue) {
+      }
+    },
+    actualDays() {
+      // let start = Date.parse(new Date(this.innerForm.equUseTime))
+      // let end = Date.parse(new Date(this.innerForm.equReturnTime))
+      // let useDay = end - start
+      // let oneDay = 24 * 60 * 60 * 1000
+      // if (useDay < oneDay) {
+      //   return '小于1天'
+      // }
+      // let day = useDay / 1000 / 60 / 60 / 24
+      // return day + '天'
+    },
+    applicationAndReturnTitle() {
+      if (this.inUse) {
+        return 'this.inUse'
+      }
+      if (this.inApply) {
+        return '正在进行审批的申请详情'
+      }
+      if (this.inReturn) {
+        return '已归还设备的借用详情'
+      }
+      if (this.inStore) {
+        return '已入库设备的借用详情'
+      }
+      if (this.inMaintain) {
+        return '维修中设备的借用详情'
+      }
+      if (this.inScrap) {
+        return '已报废设备的借用详情'
+      }
     }
   },
   watch: {},
@@ -1604,6 +1984,21 @@ export default {
           })
       })
     },
+    // 清空表单数据操作
+    resetForm(formName) {
+      // this.$nextTick(() => {
+      //   if (this.$refs[formName] !== undefined) {
+      //     this.$refs[formName].resetFields()
+      //   }
+      // })
+
+      this.$nextTick(() => {
+        if (this.$refs[formName] !== undefined) {
+          this.$refs[formName].resetFields()
+          // this.$refs[formName].clearValidate()
+        }
+      })
+    },
     // 用于添加/修改设备的时候清空表单
     clearDetailForm() {
       this.detailForm.id = null
@@ -1635,61 +2030,265 @@ export default {
       form.equName = undefined
       form.equQuantity = undefined
       form.equUseCate = undefined
-      form.equUseTime1 = undefined
-      form.equUseTime2 = undefined
+      form.equUseTime = undefined
       form.remark = undefined
     },
-    // 处理新添加一个设备的请求
+    // 处理点击 ”添加设备“ 的按钮
     handleAddEqu() {
-      this.clearDetailForm()
       // this.resetForm('detailForm')
       // this.dialogAddFormVisible = true
       /* this.resetTemp()
       this.dialogStatus = 'create'*/
       /* this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
+        this.$refs['equAddDataForm'].clearValidate()
       })*/
+      // this.clearDetailForm()
+
+      this.$nextTick(() => {
+        // 清空图片信息
+        this.imageUrl = ''
+        // 清空校验信息
+        this.$refs['equAddDataForm'].clearValidate()
+        // 清空表单信息
+        this.$refs['equAddDataForm'].resetFields()
+      })
+    },
+    // 上传设备图片
+    handleFileSuccess(res, file) {
+      // this.imageUrl = URL.createObjectURL(file.raw)
+      this.imageUrl = res.data
+    },
+    beforeFileUpload(file) {
+      const isJPG = file.type === 'image/jpeg'
+      const isPNG = file.type === 'image/png'
+      const isLt2M = file.size / 1024 / 1024 < 2
+
+      if (!isJPG && !isPNG) {
+        this.$message.error('上传头像/图片只能是 JPG 格式!')
+      }
+      if (!isLt2M) {
+        this.$message.error('上传头像/图片大小不能超过 2MB!')
+      }
+      return (isJPG || isPNG) && isLt2M
     },
     // 提交添加表单请求
-    submitAddForm() {
-      const form = this.detailForm
-      form.outFirmTime = form.outFirmTime.getTime()
-      form.purchaseTime = form.purchaseTime.getTime()
-      form.equLife = parseInt(form.equLife)
-      form.equPrice = parseFloat(form.equPrice)
-      form.equQuantity = parseInt(form.equQuantity)
-      form.equUser = this.$store.getters.realName
-      form.equRoom = this.$store.getters.room
+    submitAddForm(equAddDataForm) {
+      this.$refs[equAddDataForm].validate((valid) => {
+        if (valid) {
+          // 表单校验通过，需要做的事
+          const form = this.equDetailAddForm
+          // form.outFirmTime = form.outFirmTime.getTime()
+          // form.purchaseTime = form.purchaseTime.getTime()
+          // form.storageTime = form.purchaseTime
+          form.storageTime = new Date().getTime()
+          form.equPrice = parseFloat(form.equPrice)
+          form.equQuantity = parseInt(form.equQuantity)
+          form.equUser = this.$store.getters.loginName
+          form.equRoom = this.$store.getters.room
+          form.equPicture = this.imageUrl
+
+          new Promise((resolve, reject) => {
+            addEqu(form)
+              .then(resp => {
+                // 关闭模态框，给出相关提示。
+                this.dialogAddFormVisible = false
+                const isSuccess = resp.data === true
+                isSuccess
+                  ? this.$message({
+                    showClose: true,
+                    message: '设备【' + this.equDetailAddForm.equName + '】入库成功。',
+                    type: 'success'
+                  })
+                  : this.$message({
+                    // 失败，给出提示信息
+                    showClose: true,
+                    message: '设备【' + this.equDetailAddForm.equName + '】入库失败，请检查后重新提交。',
+                    type: 'warning'
+                  })
+              })
+              .catch(err => {
+                reject(err)
+              })
+          })
+        } else {
+          console.log('错误提交！！')
+          return false
+        }
+      })
+    },
+    // 处理展示设备详情信息请求
+    handleShowEqu(row) {
+      // this.detailForm = row
       new Promise((resolve, reject) => {
-        addEqu(form)
+        getEquVOById(row.id)
           .then(resp => {
-            console.log(resp)
-            const isSuccess = resp.data.code === 1
-            const updatedUserId = resp.data.t.id
-            isSuccess
-              ? this.$message({
-                showClose: true,
-                message: '设备【' + this.detailForm.loginName + '】入库成功。',
-                type: 'success'
-              })
-              : this.$message({
-                // 失败，给出提示信息
-                showClose: true,
-                message: '设备【' + this.detailForm.loginName + '】入库失败，请检查后重新提交。',
-                type: 'warning'
-              })
+            this.detailForm = resp.data
+            this.imageUrl = resp.data.equPicture
+            resolve(resp)
           })
           .catch(err => {
             reject(err)
           })
       })
     },
-    // 处理展示设备详情信息请求
-    handleShowEqu(row) {
-      this.detailForm = row
+    // 处理点击编辑按钮
+    handleModifyEqu(row, index) {
+      this.$nextTick(() => {
+        // 清空校验信息
+        this.$refs['dataForm'].clearValidate()
+      })
+      // 点击编辑按钮，会有修改设备图片的需要求，现在要做的是：请求上传图片的后端接口应该带上设备的id（路径变量）
+      this.fileApi += '/' + row.id
+      // 获取到要编辑设备的实践室ID
+      const roomName = row.equRoom
+      for (let i = 0; i < this.equRoomInfo.length; i++) {
+        if (roomName === this.equRoomInfo[i]) {
+          this.nowRoomId = i + 1
+        }
+      }
+      // 调用方法，目的是为了获取当前实践室的所有管理员
+      this.changeEquRoom(this.nowRoomId)
+      // index：当前表格页面的index值。
+      // 用户点击修改按钮，发送异步请求到后端，后端处理请求并且返回给前端进行展示。
+      new Promise((resolve, reject) => {
+        getEquById(row.id)
+          .then(resp => {
+            this.detailForm = resp.data
+            this.imageUrl = resp.data.equPicture
+            resolve(resp)
+          })
+          .catch(err => {
+            reject(err)
+          })
+      })
+    },
+    // 处理退出编辑模态框
+    handleQuitModifyEqu(done) {
+      // 退出编辑框，现在要做的是：将请求后端上传图片文件的api还原（不带设备id路径变量）
+      const url = this.fileApi
+      this.fileApi = url.substring(0, url.lastIndexOf('/'))
+      done()
+    },
+    // 处理更换实践室
+    changeEquRoom(roomId) {
+      // 在下拉列表中切换了实践室，这时实践室ID会变、实践室管理员会变。
+      this.nowRoomUsers = []
+
+      // 在编辑设备页面，应该有这样一个情况，超级管理员指定设备的存放实践室，并且设置一个当前实践室的管理员来管理。
+      // 现在要做的是发送这个roomId到后端，查出这个实践室的所有管理员ADMIN和超级管理员SUPERADMIN，将他们放在nowRoomUsers中
+      new Promise((resolve, reject) => {
+        getNowRoomUsers(roomId)
+          .then(resp => {
+            const users = resp.data
+            const length = users.length
+            for (let i = 0; i < length; i++) {
+              this.nowRoomUsers[i] = {}
+              this.nowRoomUsers[i].id = users[i].id
+              this.nowRoomUsers[i].loginName = users[i].loginName
+            }
+          })
+          .catch(err => {
+            reject(err)
+          })
+      })
+    },
+    // 提交编辑表单
+    submitModifyForm(dataForm) {
+      this.$refs[dataForm].validate((valid) => {
+        if (valid) {
+          // 表单校验通过，需要做的事
+          const form = this.detailForm
+          form.equPrice = parseFloat(form.equPrice)
+          form.equQuantity = parseInt(form.equQuantity)
+          form.equLife = parseInt(form.equLife)
+          const date1 = form.outFirmTime
+          if (date1 !== undefined && date1 !== null) {
+            form.outFirmTime = typeof (date1) === 'string' ? new Date(date1).getTime() : date1.getTime()
+          } else {
+            form.outFirmTime = undefined
+          }
+          const date2 = form.purchaseTime
+          if (date2 !== undefined && date2 !== null) {
+            form.purchaseTime = typeof (date2) === 'string' ? new Date(date2).getTime() : date2.getTime()
+          } else {
+            form.purchaseTime = undefined
+          }
+
+          form.equPicture = this.imageUrl
+          // 表单校验通过
+          new Promise((resolve, reject) => {
+            modifyEqu(this.detailForm)
+              .then(resp => {
+                const isSuccess = resp.data === true
+                this.dialogModifyFormVisible = false
+                isSuccess
+                  ? this.$message({
+                    showClose: true,
+                    message: '设备【' + this.detailForm.id + '】修改成功。',
+                    type: 'success'
+                  })
+                  : this.$message({
+                    // 失败，给出提示信息
+                    showClose: true,
+                    message: '设备【' + this.detailForm.id + '】修改失败，请检查后重新提交。',
+                    type: 'warning'
+                  })
+                // this.reload()
+                this.getEquList(this.currentPage, this.currentSize)
+              })
+              .catch(err => {
+                reject(err)
+              })
+          })
+        } else {
+          console.log('错误提交！！')
+          return false
+        }
+      })
+    },
+    // 处理删除请求
+    handleDeleteEqu(row, index) {
+      this.$confirm('此操作将永久删除' + row.equName + ', 是否继续?', '删除设备', {
+        distinguishCancelAndClose: true,
+        confirmButtonText: '删 除',
+        cancelButtonText: '取 消',
+        type: 'warning'
+      })
+        .then(() => {
+          new Promise((resolve, reject) => {
+            deleteEqu(row.id)
+              .then(resp => {
+                this.$notify({
+                  title: 'Success',
+                  dangerouslyUseHTMLString: true,
+                  message: '<strong>删除设备 <i>' + row.equName + '</i> 成功</strong>',
+                  type: 'success',
+                  duration: 3000
+                })
+                // this.reload()
+                this.getEquList(this.currentPage, this.currentSize)
+                resolve(resp)
+              })
+              .catch(err => {
+                reject(err)
+              })
+          })
+        })
+        .catch(() => {
+          this.$message({
+            type: 'info',
+            showClose: true,
+            message: '取消删除'
+          })
+        })
     },
     // 处理普通用户点击申请使用设备
     handleApplyForEquipment(row) {
+      this.$nextTick(() => {
+        // 清空表单信息
+        this.$refs['applyUseEquForm'].resetFields()
+      })
+
       // 清空表单，保留默认值
       this.clearApplyForEquipmentForm()
       this.applyForEquipmentForm.id = row.id
@@ -1706,38 +2305,41 @@ export default {
       })
     },
     // 提交申请使用设备的请求
-    submitApplyEquForm() {
-      const form = this.applyForEquipmentForm
-      const data = {
-        userId: this.$store.getters.id,
-        equId: form.id,
-        equQuantity: this.equNum,
-        equUseCate: form.equUseCate,
-        equUseTime: form.equUseTime1.getTime(),
-        equDay: this.equDay,
-        remark: form.remark
-      }
-      new Promise((resolve, reject) => {
-        applyInfoForUseEquipment(data)
-          .then(resp => {
-            const isSuccess = resp.data === true
-            isSuccess
-              ? this.$message({
-                showClose: true,
-                message: '申请成功，等待审核。',
-                type: 'success'
+    submitApplyEquForm(applyUseEquForm) {
+      this.$refs[applyUseEquForm].validate((valid) => {
+        if (valid) {
+          const form = this.applyForEquipmentForm
+          form.userId = this.$store.getters.id
+          form.equId = form.id
+          form.equQuantity = form.equQuantityChoose
+          form.equUseTime = form.equUseTime.getTime()
+          new Promise((resolve, reject) => {
+            applyInfoForUseEquipment(form)
+              .then(resp => {
+                this.dialogApplyForEquipment = false
+                const isSuccess = resp.data === true
+                isSuccess
+                  ? this.$message({
+                    showClose: true,
+                    message: '申请成功，等待审核。',
+                    type: 'success'
+                  })
+                  : this.$message({
+                    showClose: true,
+                    message: '申请失败，请检查后重新提交。',
+                    type: 'warning'
+                  })
+                this.getEquList(this.currentPage, this.currentSize)
+                resolve(resp)
               })
-              : this.$message({
-                showClose: true,
-                message: '申请失败，请检查后重新提交。',
-                type: 'warning'
+              .catch(err => {
+                reject(err)
               })
-            this.getEquList(this.currentPage, this.currentSize)
-            resolve(resp)
           })
-          .catch(err => {
-            reject(err)
-          })
+        } else {
+          console.log('错误提交！！')
+          return false
+        }
       })
     },
     // 处理 用户点击查看‘我的申请’ 或者 管理员点击查看‘申请与归还’
@@ -1768,9 +2370,10 @@ export default {
           showReturnedEqu()
             .then(resp => {
               this.returnedEquTableTableData = resp.data
-              for (const e of this.returnedEquTableTableData) {
+              this.returnedEquTableTableData.forEach(e => {
                 e.status = e.approvalStatusName
-              }
+                e.equManager = this.$store.getters.realName
+              })
               resolve(resp)
             })
             .catch(err => {
@@ -1784,7 +2387,22 @@ export default {
               this.storedEquTableTableData = resp.data
               this.storedEquTableTableData.forEach(e => {
                 e.status = e.approvalStatusName
-                e.userName = this.$store.getters.realName
+                e.storeman = this.$store.getters.realName
+              })
+              resolve(resp)
+            })
+            .catch(err => {
+              reject(err)
+            })
+        })
+        // 设备维修中
+        new Promise((resolve, reject) => {
+          showRepairingEqu()
+            .then(resp => {
+              this.maintainEquTableTableData = resp.data
+              this.maintainEquTableTableData.forEach(e => {
+                e.status = e.approvalStatusName
+                e.repairman = this.$store.getters.realName
               })
               resolve(resp)
             })
@@ -1799,7 +2417,7 @@ export default {
               this.scrapEquTableTableData = resp.data
               this.scrapEquTableTableData.forEach(e => {
                 e.status = e.approvalStatusName
-                e.userName = this.$store.getters.realName
+                e.operator = this.$store.getters.realName
               })
               resolve(resp)
             })
@@ -1847,7 +2465,7 @@ export default {
     },
     // 普通用户取消申请设备的使用
     handleCancelApplication(row) {
-      this.$confirm('取消申请？', '申请操作', {
+      this.$confirm('取消申请？', '用户操作', {
         distinguishCancelAndClose: true,
         confirmButtonText: '确定',
         cancelButtonText: '返回',
@@ -1879,6 +2497,8 @@ export default {
               })
           })
         })
+        .catch(() => {
+        })
     },
     // 管理员点击：’显示已归还的设备‘
     handleShowReturnedEqu() {
@@ -1892,8 +2512,19 @@ export default {
           })
       })
     },
-    // 管理员查看普通用户申请详情
+    // 普通用户查看自己的申请详情 或者 管理员查看普通用户申请详情
     handleShowOneApproval(row) {
+      // 1、普通用户对于正在使用的设备来说，这时用户点击了查看按钮，应该展示的是被借用设备的具体开始使用时间
+      // 而不是用户在发起申请时填写的预计开始使用时间，逻辑如下
+      this.inUse = row.status === '设备使用中'
+      // 2、管理员用户的 待审核申请 标签页
+      this.inApply = row.status === '待审核' || row.status === '审核中' ||
+        row.status === '审核通过' || row.status === '审核不通过'
+      this.inReturn = row.status === '设备已归还'
+      this.inStore = row.status === '设备已入库'
+      this.inMaintain = row.status === '设备维修中'
+      this.inScrap = row.status === '设备已报废'
+
       this.innerForm = row
       new Promise((resolve, reject) => {
         showOneApproval(row.id)
@@ -1908,7 +2539,7 @@ export default {
     },
     // 管理员通过普通用户申请
     handlePassOneApproval(row) {
-      this.$confirm('确定通过？', '审核申请', {
+      this.$confirm('确定通过？', '管理员操作', {
         distinguishCancelAndClose: true,
         confirmButtonText: '确定',
         cancelButtonText: '返回',
@@ -1931,21 +2562,32 @@ export default {
     },
     // 普通用户开始 使用设备
     handleUseEquipment(row) {
-      this.$confirm('开始使用', '开始使用', {
-        distinguishCancelAndClose: true,
-        confirmButtonText: '使用',
-        cancelButtonText: '取消',
-        type: 'info'
-      })
+      const day = row.equDay
+      const startMilli = Date.parse(new Date(row.equUseTime))
+      const nowMilli = new Date().getTime()
+      const itsTime = nowMilli >= startMilli
+
+      this.$confirm(itsTime ? '确定开始使用设备？' : '提前使用设备？注：归还时间将从现在开始计算。',
+        '用户操作',
+        {
+          distinguishCancelAndClose: true,
+          confirmButtonText: '使用',
+          cancelButtonText: '取消',
+          type: 'info'
+        })
         .then(() => {
+          // 用户提前使用了设备，需要将equUseTime更新为当前时间
           new Promise((resolve, reject) => {
-            startUseEquipment(row.id)
+            startUseEquipment(row.id, itsTime, itsTime ? startMilli : nowMilli, day)
               .then(resp => {
                 this.handleShowOneApproval(row)
                 this.$notify({
                   title: 'SUCCESS',
                   dangerouslyUseHTMLString: true,
-                  message: '开始使用设备【xxx】，<br/>请于xx月xx日之前归还。',
+                  message: '开始使用设备：【' + row.equName + '】<br/>' +
+                    '借用数量：【' + row.equQuantity + '】件<br/>' +
+                    '可使用天数：【' + row.equDay + '】天<br/>' +
+                    '请于：【' + resp.data + '】前归还',
                   type: 'success',
                   duration: 0
                 })
@@ -1956,10 +2598,12 @@ export default {
               })
           })
         })
+        .catch(() => {
+        })
     },
     // 普通用户使用完设备，需要归还设备。
     handleReturnThisEquipment(row) {
-      this.$confirm('设备使用期限为xx月xx日，确定归还？', '用户操作', {
+      this.$confirm('确定归还设备？', '用户操作', {
         distinguishCancelAndClose: true,
         confirmButtonText: '确定',
         cancelButtonText: '返回',
@@ -1991,10 +2635,12 @@ export default {
               })
           })
         })
+        .catch(() => {
+        })
     },
     // 管理员驳回普通用户申请
     handleRejectOneApproval(row) {
-      this.$confirm('确定驳回？', '审核申请', {
+      this.$confirm('确定驳回？', '管理员操作', {
         distinguishCancelAndClose: true,
         confirmButtonText: '确定',
         cancelButtonText: '返回',
@@ -2015,10 +2661,12 @@ export default {
               })
           })
         })
+        .catch(() => {
+        })
     },
     // 普通用户 重新申请使用设备
     handleReApply(row) {
-      this.$confirm('发起重申请求？', '申请操作', {
+      this.$confirm('发起重申请求？', '用户操作', {
         distinguishCancelAndClose: true,
         confirmButtonText: '确定',
         cancelButtonText: '返回',
@@ -2074,7 +2722,7 @@ export default {
       sf.returnQuantity = row.equQuantity
     },
     // 管理员查看返还的设备后选择入库设备（提交入库表单）
-    submitStoreThisEquipment() {
+    submitStoreThisEquipment(storageReturnEquForm) {
       // this.$confirm('设备是否完好无缺，确定入库设备？（请选择入库的数量）', '管理员操作', {
       //   distinguishCancelAndClose: true,
       //   confirmButtonText: '确定',
@@ -2108,73 +2756,96 @@ export default {
       //         })
       //     })
       //   })
-
-      const data = {
-        id: this.storageForm.id,
-        num: this.storageForm.storageQuantity
-      }
-      new Promise((resolve, reject) => {
-        storePartReturnedEqu(data.id, data.num)
-          .then(resp => {
-            const isSuccess = resp.data === true
-            isSuccess
-              ? this.$message({
-                showClose: true,
-                message: data.num + ' 台设备已入库',
-                duration: 5000,
-                type: 'success'
+      this.$refs[storageReturnEquForm].validate((valid) => {
+        if (valid) {
+          const data = {
+            id: this.storageForm.id,
+            num: this.storageForm.storageQuantity
+          }
+          new Promise((resolve, reject) => {
+            storePartReturnedEqu(data.id, data.num)
+              .then(resp => {
+                this.dialogStoreThisEquipmentVisible = false
+                const isSuccess = resp.data === true
+                isSuccess
+                  ? this.$message({
+                    showClose: true,
+                    message: data.num + ' 台设备已入库',
+                    duration: 5000,
+                    type: 'success'
+                  })
+                  : this.$message({
+                    showClose: true,
+                    message: '设备入库失败，请检查后重新提交。',
+                    duration: 0,
+                    type: 'warning'
+                  })
+                this.handleShowMyApplyOrApproval()
+                this.getEquList(this.currentPage, this.currentSize)
+                resolve(resp)
               })
-              : this.$message({
-                showClose: true,
-                message: '设备入库失败，请检查后重新提交。',
-                duration: 0,
-                type: 'warning'
+              .catch(err => {
+                reject(err)
               })
-            this.handleShowMyApplyOrApproval()
-            this.getEquList(this.currentPage, this.currentSize)
-            resolve(resp)
           })
-          .catch(err => {
-            reject(err)
-          })
+        } else {
+          console.log('错误提交！！')
+          return false
+        }
       })
     },
-
     // 管理员查看返还的设备后选择维修设备（点击维修按钮）
     handleRepairThisEquipment(row) {
+      this.$nextTick(() => {
+        // 清空校验信息
+        this.$refs['repairReturnEquForm'].resetFields()
+        this.$refs['repairReturnEquForm'].clearValidate()
+      })
+
       const rf = this.repairForm
       rf.id = row.id
-      rf.approvalTime = row.approvalTime
+      rf.approvalTime = new Date().getTime()
       rf.equName = row.equName
       rf.userName = row.userName
+      rf.equManager = row.equManager
       rf.returnQuantity = row.equQuantity
     },
     // 管理员查看返还的设备后选择维修设备（提交维修表单）
-    submitRepairThisEquipment() {
-      new Promise((resolve, reject) => {
-        maintainReturnedEqu(row.id)
-          .then(resp => {
-            const isSuccess = resp.data === true
-            isSuccess
-              ? this.$message({
-                showClose: true,
-                message: '操作成功',
-                duration: 5000,
-                type: 'success'
+    submitRepairThisEquipment(repairReturnEquForm) {
+      this.$refs[repairReturnEquForm].validate((valid) => {
+        if (valid) {
+          // 转换为毫秒数
+          this.repairForm.equDowntime = this.repairForm.equDowntime.getTime()
+          new Promise((resolve, reject) => {
+            maintainReturnedEqu(this.repairForm)
+              .then(resp => {
+                this.dialogRepairThisEquipmentVisible = false
+                const isSuccess = resp.data === true
+                isSuccess
+                  ? this.$message({
+                    showClose: true,
+                    message: this.repairForm.maintainQuantity + ' 台设备已提交报修',
+                    duration: 5000,
+                    type: 'success'
+                  })
+                  : this.$message({
+                    showClose: true,
+                    message: '操作失败，请检查后重新提交。',
+                    duration: 0,
+                    type: 'warning'
+                  })
+                this.handleShowMyApplyOrApproval()
+                this.getEquList(this.currentPage, this.currentSize)
+                resolve(resp)
               })
-              : this.$message({
-                showClose: true,
-                message: '操作失败，请检查后重新提交。',
-                duration: 0,
-                type: 'warning'
+              .catch(err => {
+                reject(err)
               })
-            this.handleShowMyApplyOrApproval()
-            this.getEquList(this.currentPage, this.currentSize)
-            resolve(resp)
           })
-          .catch(err => {
-            reject(err)
-          })
+        } else {
+          console.log('错误提交！！')
+          return false
+        }
       })
     },
 
@@ -2187,69 +2858,43 @@ export default {
       sf.returnQuantity = row.equQuantity
     },
     // 管理员查看返还的设备后选择报废设备（提交报废表单）
-    submitScrapThisEquipment() {
-      // this.$confirm('设备损坏严重，已无法使用，确定报废？', '管理员操作', {
-      //   distinguishCancelAndClose: true,
-      //   confirmButtonText: '确定',
-      //   cancelButtonText: '返回',
-      //   type: 'success'
-      // })
-      //   .then(() => {
-      //     new Promise((resolve, reject) => {
-      //       scrapReturnedEqu(row.id)
-      //         .then(resp => {
-      //           const isSuccess = resp.data === true
-      //           isSuccess
-      //             ? this.$message({
-      //               showClose: true,
-      //               message: '设备已报废',
-      //               duration: 5000,
-      //               type: 'success'
-      //             })
-      //             : this.$message({
-      //               showClose: true,
-      //               message: '执行报废操作失败，请检查后重新提交。',
-      //               duration: 0,
-      //               type: 'warning'
-      //             })
-      //           this.handleShowMyApplyOrApproval()
-      //           this.getEquList(this.currentPage, this.currentSize)
-      //           resolve(resp)
-      //         })
-      //         .catch(err => {
-      //           reject(err)
-      //         })
-      //     })
-      //   })
-
-      const data = {
-        id: this.scrapForm.id,
-        num: this.scrapForm.scrapQuantity
-      }
-      new Promise((resolve, reject) => {
-        scrapPartReturnedEqu(data.id, data.num)
-          .then(resp => {
-            const isSuccess = resp.data === true
-            isSuccess
-              ? this.$message({
-                showClose: true,
-                message: data.num + ' 台设备已报废',
-                duration: 5000,
-                type: 'success'
+    submitScrapThisEquipment(scrapReturnEquForm) {
+      this.$refs[scrapReturnEquForm].validate((valid) => {
+        if (valid) {
+          const data = {
+            id: this.scrapForm.id,
+            num: this.scrapForm.scrapQuantity
+          }
+          new Promise((resolve, reject) => {
+            scrapPartReturnedEqu(data.id, data.num)
+              .then(resp => {
+                this.dialogScrapThisEquipmentVisible = false
+                const isSuccess = resp.data === true
+                isSuccess
+                  ? this.$message({
+                    showClose: true,
+                    message: data.num + ' 台设备已报废',
+                    duration: 5000,
+                    type: 'success'
+                  })
+                  : this.$message({
+                    showClose: true,
+                    message: '执行报废操作失败，请检查后重新提交。',
+                    duration: 0,
+                    type: 'warning'
+                  })
+                this.handleShowMyApplyOrApproval()
+                this.getEquList(this.currentPage, this.currentSize)
+                resolve(resp)
               })
-              : this.$message({
-                showClose: true,
-                message: '执行报废操作失败，请检查后重新提交。',
-                duration: 0,
-                type: 'warning'
+              .catch(err => {
+                reject(err)
               })
-            this.handleShowMyApplyOrApproval()
-            this.getEquList(this.currentPage, this.currentSize)
-            resolve(resp)
           })
-          .catch(err => {
-            reject(err)
-          })
+        } else {
+          console.log('错误提交！！')
+          return false
+        }
       })
     },
 
@@ -2288,6 +2933,8 @@ export default {
               })
           })
         })
+        .catch(() => {
+        })
     },
     // 处理点击负责人登录名事件（展示负责人详细信息）
     findTheUserInCharge(equUserLoginName) {
@@ -2324,85 +2971,6 @@ export default {
             reject(err)
           })
       })
-    },
-
-    // 处理点击修改按钮
-    handleModifyEqu(row, index) {
-      // index：当前表格页面的index值。
-      // 用户点击修改按钮，发送异步请求到后端，后端处理请求并且返回给前端进行展示。
-      new Promise((resolve, reject) => {
-        getEquById(row.id)
-          .then(resp => {
-            this.detailForm = resp.data
-            resolve(resp)
-          })
-          .catch(err => {
-            reject(err)
-          })
-      })
-    },
-    // 提交修改表单
-    submitModifyForm() {
-      new Promise((resolve, reject) => {
-        modifyEqu(this.detailForm)
-          .then(resp => {
-            const isSuccess = resp.data === true
-            isSuccess
-              ? this.$message({
-                showClose: true,
-                message: '设备【' + this.detailForm.id + '】修改成功。',
-                type: 'success'
-              })
-              : this.$message({
-                // 失败，给出提示信息
-                showClose: true,
-                message: '设备【' + this.detailForm.id + '】修改失败，请检查后重新提交。',
-                type: 'warning'
-              })
-            // this.reload()
-            this.getEquList(this.currentPage, this.currentSize)
-          })
-          .catch(err => {
-            reject(err)
-          })
-      })
-    },
-
-    // 处理删除请求
-    handleDeleteEqu(row, index) {
-      this.$confirm('此操作将永久删除' + row.equName + ', 是否继续?', '删除设备', {
-        distinguishCancelAndClose: true,
-        confirmButtonText: '删 除',
-        cancelButtonText: '取 消',
-        type: 'warning'
-      })
-        .then(() => {
-          new Promise((resolve, reject) => {
-            deleteEqu(row.id)
-              .then(resp => {
-                this.$notify({
-                  title: 'Success',
-                  dangerouslyUseHTMLString: true,
-                  message: '<strong>删除设备 <i>' + row.equName + '</i> 成功</strong>',
-                  type: 'success',
-                  duration: 3000
-                })
-                // this.reload()
-                this.getEquList(this.currentPage, this.currentSize)
-                resolve(resp)
-              })
-              .catch(err => {
-                reject(err)
-              })
-          })
-        })
-        .catch(() => {
-          this.$message({
-            type: 'info',
-            showClose: true,
-            message: '取消删除'
-          })
-        })
     },
 
     // 处理当前页码的改变，去到页码为：`currentPage`的那一页。
@@ -2590,3 +3158,32 @@ export default {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+.avatar-uploader .el-upload {
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.avatar-uploader .el-upload:hover {
+  border-color: #409EFF;
+}
+
+.avatar-uploader-icon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 178px;
+  height: 178px;
+  line-height: 178px;
+  text-align: center;
+}
+
+.avatar {
+  width: 178px;
+  height: 178px;
+  display: block;
+}
+</style>

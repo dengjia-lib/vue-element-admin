@@ -15,38 +15,29 @@
       :autoplay="false"
       class="example"
     />
-    <div style="margin-left: 15%;margin-top: 30px;">
-      <label class="label" for="startValInput">startVal:
-        <input v-model.number="setStartVal" type="number" name="startValInput">
-      </label>
-      <label class="label" for="endValInput">endVal:
-        <input v-model.number="setEndVal" type="number" name="endVaInput">
-      </label>
-      <label class="label" for="durationInput">duration:
-        <input v-model.number="setDuration" type="number" name="durationInput">
-      </label>
+    <div style="margin-left: 60%;margin-top: 30px;">
       <div class="startBtn example-btn" @click="start">
         计算得分
       </div>
-      <div class="pause-resume-btn example-btn" @click="pauseResume">
-        暂停/恢复
-      </div>
       <br>
-      <label class="label" for="decimalsInput">decimals:
-        <input v-model.number="setDecimals" type="number" name="decimalsInput">
-      </label>
-      <label class="label" for="separatorInput">separator:
-        <input v-model="setSeparator" name="separatorInput">
-      </label>
-      <label class="label" for="prefixInput">prefix:
-        <input v-model="setPrefix" name="prefixInput">
-      </label>
-      <label class="label" for="suffixInput">suffix:
-        <input v-model="setSuffix" name="suffixInput">
-      </label>
     </div>
     <div style="text-align: center">
-      <el-button type="primary" style="margin-left: 16px;" @click="scoringStrategyDrawer = true">
+      <el-button
+        v-permission="['ADMIN']"
+        type="info"
+        style="margin-left: 16px;"
+        @click="scoringStrategyDrawer = true"
+      >
+
+        查看计分策略
+      </el-button>
+      <el-button
+        v-permission="['SUPERADMIN']"
+        type="primary"
+        style="margin-left: 16px;"
+        @click="scoringStrategyDrawer = true"
+      >
+
         管理计分策略
       </el-button>
     </div>
@@ -58,53 +49,177 @@
       size="70%"
     >
       <div id="myScoringStrategy">
-        <p style="text-align: center">纳入计算绩效得分的选项：（实践室xxx）</p>
+        <el-row :gutter="24">
+          <el-col :span="22">
+            <div class="grid-content bg-purple"><p style="text-align: center">
+              纳入计算绩效得分的选项（当前实践室：{{ this.$store.getters.room }}）</p></div>
+          </el-col>
+          <el-col :span="2">
+            <div class="grid-content bg-purple">
+              <el-button type="primary" size="medium" @click="saveStrategy">保存</el-button>
+            </div>
+          </el-col>
+        </el-row>
         <el-divider><i class="el-icon-data-analysis" /></el-divider>
         <el-row>
-          <el-col :span="10">
+          <!-- 设备总借用次数 -->
+          <el-col :span="8">
             <div class="grid-content bg-purple">
               <el-switch
                 v-model="showNumOfBorrow"
                 inactive-text=""
                 active-text="设备总借用次数"
                 active-color="#13ce66"
+                :disabled="admin"
               />
               <br><br>
+              <span style="font-size: 10px">
+                说明：用户的一次申请使用设备计一次【借用次数】，<br>
+                当前设备库所受理的总的申请数即为【设备总借用次数】。<br>
+                计算方法：基础次数 x 权重数，<br>
+                例如：本月【实践室C】有3条借用记录，权重指定为10，<br>
+                计算得分为 3 x 10 = 30（分）<br>
+              </span>
+              <br>
               <span v-if="showNumOfBorrow" class="weightText">所占权重：</span>
-              <el-input-number v-if="showNumOfBorrow" v-model="timesWeight" size="mini" />
+              <el-input-number
+                v-if="showNumOfBorrow"
+                v-model="timesWeight"
+                :min="1"
+                :max="10"
+                size="mini"
+                :disabled="admin"
+              />
             </div>
           </el-col>
-          <el-col :span="14">
+          <!-- 设备总借用数量 -->
+          <el-col :span="8">
+            <div class="grid-content bg-purple">
+              <el-switch
+                v-model="showQuantityOfBorrow"
+                inactive-text=""
+                active-text="设备总借用数量"
+                active-color="#13ce66"
+                :disabled="admin"
+              />
+              <br><br>
+              <span style="font-size: 10px">
+                说明：用户申请使用设备时需填写申请数量，<br>
+                当前设备库所借出的设备总数即【设备总借用数量】。<br>
+                计算方法：基础数量 x 权重数，<br>
+                例如：本月【实践室C】共有100台设备借出，权重指定为5，<br>
+                计算得分为 100 x 5 = 500（分）<br>
+              </span>
+              <br>
+              <span v-if="showQuantityOfBorrow" class="weightText">所占权重：</span>
+              <el-input-number
+                v-if="showQuantityOfBorrow"
+                v-model="quantityWeight"
+                :min="1"
+                :max="10"
+                size="mini"
+                :disabled="admin"
+              />
+            </div>
+          </el-col>
+          <!-- 设备使用方向 -->
+          <el-col :span="8">
             <div class="grid-content bg-purple-light">
               <el-switch v-model="showUseCate" inactive-text="" active-text="借用设备使用方向" />
               <br><br>
+              <span style="font-size: 10px">
+                说明：用户借用的设备投入不同方向使用将计不同的分数，<br>
+                勾选不同的选项来决定其是否纳入绩效得分的计算，<br>
+                并且指定对应项目的权重。<br>
+              </span>
+              <br>
               <el-checkbox-group v-if="showUseCate" v-model="checkList">
-                <el-checkbox label="科研项目" />
-                <el-checkbox label="参加比赛" />
-                <el-checkbox label="老师授课" />
-                <el-checkbox label="学生个人" />
-                <el-checkbox label="校外借用" />
-                <el-checkbox label="其他用途" />
+                <el-checkbox label="科研项目" @change="showKeYan=!showKeYan" />
+                <el-input-number
+                  v-if="showKeYan"
+                  v-model="keYanXiangMu"
+                  :min="1"
+                  :max="10"
+                  size="mini"
+                />
+                <br>
+                <el-checkbox label="参加比赛" @change="showBiSai=!showBiSai" />
+                <el-input-number
+                  v-if="showBiSai"
+                  v-model="canJiaBiSai"
+                  :min="1"
+                  :max="10"
+                  size="mini"
+                />
+                <br>
+                <el-checkbox label="老师授课" @change="showShouKe=!showShouKe" />
+                <el-input-number
+                  v-if="showShouKe"
+                  v-model="laoShiShouKe"
+                  :min="1"
+                  :max="10"
+                  size="mini"
+                />
+                <br>
+                <el-checkbox label="学生个人" @change="showGeRen=!showGeRen" />
+                <el-input-number
+                  v-if="showGeRen"
+                  v-model="xueShengGeRen"
+                  :min="1"
+                  :max="10"
+                  size="mini"
+                />
+                <br>
+                <el-checkbox label="校外借用" @change="showXiaoWai=!showXiaoWai" />
+                <el-input-number
+                  v-if="showXiaoWai"
+                  v-model="xiaoWaiJieYong"
+                  :min="1"
+                  :max="10"
+                  size="mini"
+                />
+                <br>
+                <el-checkbox label="其他用途" @change="showQiTa=!showQiTa" />
+                <el-input-number
+                  v-if="showQiTa"
+                  v-model="qiTaYongTu"
+                  :min="1"
+                  :max="10"
+                  size="mini"
+                />
               </el-checkbox-group>
+              <br>
+              <!--              <span v-if="showUseCate" class="weightText">所占权重：</span>
+                            <el-input-number v-if="showUseCate"
+                                             v-model="useCateWeight"
+                                             :min="1"
+                                             :max="10"
+                                             size="mini"
+                            />-->
             </div>
           </el-col>
         </el-row>
-        <el-divider />
-        <el-row>
-          <el-col :span="10">
-            <div class="grid-content bg-purple">
-              <el-switch
-                v-model="showOkRate"
-                inactive-text=""
-                active-text="检验所有借用设备的达标率"
-                active-color="#13ce66"
-              />
-              <br><br>
-              <span v-if="showOkRate" class="weightText">所占权重：</span>
-              <el-input-number v-if="showOkRate" v-model="okWeight" size="mini" />
-            </div>
-          </el-col>
-        </el-row>
+
+        <!--        <el-divider/>
+                <el-row>
+                  <el-col :span="8">
+                    <div class="grid-content bg-purple">
+                      <el-switch
+                        v-model="showOkRate"
+                        inactive-text=""
+                        active-text="检验所有借用设备的达标率"
+                        active-color="#13ce66"
+                      />
+                      <br><br>
+                      <span v-if="showOkRate" class="weightText">所占权重：</span>
+                      <el-input-number v-if="showOkRate" v-model="okWeight" size="mini"/>
+                    </div>
+                  </el-col>
+                  <el-col :span="8">
+                    待开发...
+                  </el-col>
+                </el-row>-->
+
       </div>
     </el-drawer>
     <!--<aside>&lt;count-to :start-val=&#x27;{{ _startVal }}&#x27; :end-val=&#x27;{{ _endVal }}&#x27;-->
@@ -118,31 +233,57 @@
 
 <script>
 import countTo from 'vue-count-to'
-import { getTheNumOfBorrow } from '@/api/performance'
+import {
+  getTheNumOfBorrow,
+  getTheQuantityOfBorrow,
+  getTheUseCateScore,
+  getStrategy,
+  saveStrategy
+} from '@/api/performance'
+import permission from '@/directive/permission'
+import waves from '@/directive/waves'
 
 export default {
   name: 'CountToDemo',
   components: { countTo },
+  directives: { waves, permission },
   data() {
     return {
       setStartVal: 0,
-      setEndVal: 2017,
-      setDuration: 4000,
+      setEndVal: 0,
+      setDuration: 3000,
       setDecimals: 0,
       setSeparator: ',',
       setSuffix: ' 分',
       setPrefix: '共 ',
 
-      checkList: ['选中且禁用', '复选框 A'],
+      checkList: ['科研项目', '参加比赛', '老师授课'],
       scoringStrategyDrawer: false,
       direction: 'btt',
 
       showNumOfBorrow: true,
-      showOkRate: true,
+      showQuantityOfBorrow: true,
       showUseCate: false,
+      // showOkRate: false,
 
-      timesWeight: 1,
-      okWeight: 1
+      timesWeight: 5,
+      quantityWeight: 2,
+      useCateWeight: 1,
+      // okWeight: 1,
+
+      showKeYan: true,
+      showBiSai: true,
+      showShouKe: true,
+      showGeRen: false,
+      showXiaoWai: false,
+      showQiTa: false,
+
+      keYanXiangMu: 10,
+      canJiaBiSai: 8,
+      laoShiShouKe: 5,
+      xueShengGeRen: 3,
+      xiaoWaiJieYong: 2,
+      qiTaYongTu: 1
 
     }
   },
@@ -187,33 +328,181 @@ export default {
     },
     _prefix() {
       return this.setPrefix
+    },
+
+    admin() {
+      // 管理员无法修改计分策略，只允许查看！超级管理员可以修改。
+      const roles = this.$store.getters.roles
+      for (const role of roles) {
+        if (role === 'SUPERADMIN') {
+          return false
+        }
+      }
+      return true
     }
+  },
+  created() {
+    this.getStrategy()
   },
   methods: {
     hello() {
       alert('hello')
     },
-    start() {
+    // 获取计分策略
+    getStrategy() {
+      new Promise((resolve, reject) => {
+        getStrategy()
+          .then(resp => {
+            if (resp.data == null) {
+              return
+            }
+            const s = resp.data
+            this.showNumOfBorrow = s.isNums
+            this.showQuantityOfBorrow = s.isQuantity
+            this.showUseCate = s.isUseCate
+
+            this.timesWeight = s.numsWeight
+            this.quantityWeight = s.quantityWeight
+            this.keYanXiangMu = s.keYanWeight
+            this.canJiaBiSai = s.biSaiWeight
+            this.laoShiShouKe = s.shouKeWeight
+            this.xueShengGeRen = s.geRenWeight
+            this.xiaoWaiJieYong = s.xiaoWaiWeight
+            this.qiTaYongTu = s.qiTaWeight
+
+            this.showKeYan = s.showKeYan
+            this.showBiSai = s.showBiSai
+            this.showShouKe = s.showShouKe
+            this.showGeRen = s.showGeRen
+            this.showXiaoWai = s.showXiaoWai
+            this.showQiTa = s.showQiTa
+
+            this.checkList = []
+            this.checkList.push(s.showKeYan ? '科研项目' : '')
+            this.checkList.push(s.showBiSai ? '参加比赛' : '')
+            this.checkList.push(s.showShouKe ? '老师授课' : '')
+            this.checkList.push(s.showGeRen ? '学生个人' : '')
+            this.checkList.push(s.showXiaoWai ? '校外借用' : '')
+            this.checkList.push(s.showQiTa ? '其他用途' : '')
+
+            console.log(this.checkList)
+
+            resolve(resp)
+          })
+          .catch(err => {
+            reject(err)
+          })
+      })
+    },
+    async start() {
       const isNums = this.showNumOfBorrow
-      if (isNums) {
-        new Promise((resolve, reject) => {
-          // 一个管理员负责一个实践室，一个实践室被多个管理员负责。
-          const userId = this.$store.getters.id
-          getTheNumOfBorrow(userId)
-            .then(resp => {
-              const multiple = this.timesWeight
-              this.setEndVal = resp.data * multiple
-              this.$refs.example.start()
-              resolve(resp)
-            })
-            .catch(err => {
-              reject(err)
-            })
-        })
-      } else {
-        this.setEndVal = 1
-        this.$refs.example.start()
+      const isQuantity = this.showQuantityOfBorrow
+      const isUseCate = this.showUseCate
+
+      const timesWeight = this.timesWeight
+      const quantityWeight = this.quantityWeight
+      let endVal = 0
+      const a = function() {
+        if (isNums) {
+          return new Promise(function(resolve, reject) {
+            // 将借用次数纳入绩效得分
+            // 一个管理员负责一个实践室，一个实践室被多个管理员负责。
+            getTheNumOfBorrow()
+              .then(resp => {
+                endVal += resp.data * timesWeight
+                resolve(resp)
+              })
+              .catch(err => {
+                reject(err)
+              })
+          })
+        }
       }
+      const b = function() {
+        if (isQuantity) {
+          return new Promise((resolve, reject) => {
+            // 将借用数量纳入绩效得分
+            getTheQuantityOfBorrow()
+              .then(resp => {
+                endVal += resp.data * quantityWeight
+                resolve(resp)
+              })
+              .catch(err => {
+                reject(err)
+              })
+          })
+        }
+      }
+      const c = function() {
+        if (isUseCate) {
+          return new Promise((resolve, reject) => {
+            // 将设备的使用方向纳入绩效得分
+            getTheUseCateScore()
+              .then(resp => {
+                endVal += resp.data
+                resolve(resp)
+              })
+              .catch(err => {
+                reject(err)
+              })
+          })
+        }
+      }
+      await this.schedule([a, b, c])
+      this.setEndVal = endVal
+      this.$refs.example.start()
+    },
+    // 组织函数队列，Promise顺序调用
+    schedule(arr) {
+      let sequence = Promise.resolve()
+      arr.forEach(function(item) {
+        sequence = sequence.then(item)
+      })
+      return sequence
+    },
+    saveStrategy() {
+      const data = {
+        isNums: this.showNumOfBorrow,
+        isQuantity: this.showQuantityOfBorrow,
+        isUseCate: this.showUseCate,
+
+        numsWeight: this.timesWeight,
+        quantityWeight: this.quantityWeight,
+        keYanWeight: this.keYanXiangMu,
+        biSaiWeight: this.canJiaBiSai,
+        shouKeWeight: this.laoShiShouKe,
+        geRenWeight: this.xueShengGeRen,
+        xiaoWaiWeight: this.xiaoWaiJieYong,
+        qiTaWeight: this.qiTaYongTu,
+
+        showKeYan: this.showKeYan,
+        showBiSai: this.showBiSai,
+        showShouKe: this.showShouKe,
+        showGeRen: this.showGeRen,
+        showXiaoWai: this.showXiaoWai,
+        showQiTa: this.showQiTa
+      }
+      new Promise((resolve, reject) => {
+        saveStrategy(data)
+          .then(resp => {
+            const isSuccess = resp.data
+            isSuccess
+              ? this.$message({
+                showClose: true,
+                message: '保存成功',
+                type: 'success'
+              })
+              : this.$message({
+                showClose: true,
+                message: '保存失败',
+                type: 'warning'
+              })
+            resolve(resp)
+          })
+          .catch(err => {
+            reject(err)
+          })
+      })
     },
     pauseResume() {
       this.$refs.example.pauseResume()
